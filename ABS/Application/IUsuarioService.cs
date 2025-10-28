@@ -8,6 +8,7 @@ namespace ABS.Application;
 public interface IUsuarioService
 {
     ResultadoOperacion<Usuario> CrearUsuario(CrearUsuarioRequest request);
+    bool EsEmailValido(string email);
     IEnumerable<Usuario> ObtenerTodos();
 }
 
@@ -34,21 +35,21 @@ public record ResultadoOperacion<T>(
 {
     public static ResultadoOperacion<T> Exito(T datos, string mensaje = "Operación exitosa")
     {
-    return new ResultadoOperacion<T>(
-    Exitoso: true,
-     Mensaje: mensaje,
-    Datos: datos,
-            Errores: []
-        );
+        return new ResultadoOperacion<T>(
+        Exitoso: true,
+         Mensaje: mensaje,
+        Datos: datos,
+                Errores: []
+            );
     }
 
     public static ResultadoOperacion<T> Error(string mensaje, List<string>? errores = null)
     {
-   return new ResultadoOperacion<T>(
-            Exitoso: false,
-            Mensaje: mensaje,
-  Datos: default,
-   Errores: errores ?? []
-     );
+        return new ResultadoOperacion<T>(
+                 Exitoso: false,
+                 Mensaje: mensaje,
+       Datos: default,
+        Errores: errores ?? []
+          );
     }
 }

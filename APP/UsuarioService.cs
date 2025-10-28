@@ -20,7 +20,7 @@ public class UsuarioService(
     {
         // Validar Request
         var erroresValidacion = ValidarCrearUsuarioRequest(request);
-        if (erroresValidacion.Any())
+        if (erroresValidacion.Count != 0)
         {
             return ResultadoOperacion<Usuario>.Error("Error de validación", erroresValidacion);
         }
@@ -59,46 +59,46 @@ public class UsuarioService(
 
     private List<string> ValidarCrearUsuarioRequest(CrearUsuarioRequest request)
     {
-      var errores = new List<string>();
+        var errores = new List<string>();
 
         // Validar Nombre
         if (string.IsNullOrWhiteSpace(request.Nombre))
         {
-   errores.Add("El nombre es obligatorio");
-    }
- else if (request.Nombre.Length > 50)
+            errores.Add("El nombre es obligatorio");
+        }
+        else if (request.Nombre.Length > 50)
         {
-   errores.Add("El nombre no puede superar los 50 caracteres");
-      }
+            errores.Add("El nombre no puede superar los 50 caracteres");
+        }
 
         // Validar Apellido
- if (string.IsNullOrWhiteSpace(request.Apellido))
+        if (string.IsNullOrWhiteSpace(request.Apellido))
         {
- errores.Add("El apellido es obligatorio");
- }
+            errores.Add("El apellido es obligatorio");
+        }
         else if (request.Apellido.Length > 80)
         {
-   errores.Add("El apellido no puede superar los 80 caracteres");
+            errores.Add("El apellido no puede superar los 80 caracteres");
         }
 
-  // Validar Email
+        // Validar Email
         if (string.IsNullOrWhiteSpace(request.Email))
         {
- errores.Add("El email es obligatorio");
-     }
+            errores.Add("El email es obligatorio");
+        }
         else if (request.Email.Length > 180)
         {
-        errores.Add("El email no puede superar los 180 caracteres");
+            errores.Add("El email no puede superar los 180 caracteres");
         }
-  else if (!EsEmailValido(request.Email))
+        else if (!EsEmailValido(request.Email))
         {
-   errores.Add("El formato del email no es válido");
-   }
+            errores.Add("El formato del email no es válido");
+        }
 
         // Validar Clave
-    if (string.IsNullOrWhiteSpace(request.Clave))
-{
-      errores.Add("La clave es obligatoria");
+        if (string.IsNullOrWhiteSpace(request.Clave))
+        {
+            errores.Add("La clave es obligatoria");
         }
 
         // Nota: Rol no requiere validación adicional ya que es un enum
@@ -106,8 +106,8 @@ public class UsuarioService(
         return errores;
     }
 
-    private bool EsEmailValido(string email)
+    public bool EsEmailValido(string email)
     {
-  return new EmailAddressAttribute().IsValid(email);
+        return new EmailAddressAttribute().IsValid(email);
     }
 }
