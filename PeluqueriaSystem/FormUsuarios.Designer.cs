@@ -60,7 +60,7 @@ dgvUsuarios.Size = new Size(960, 450);
       // 
       // colId
       //
-      colId.DataPropertyName = "Id";
+      colId.DataPropertyName = "ID";
 colId.HeaderText = "ID";
       colId.Name = "colId";
       colId.ReadOnly = true;
@@ -108,8 +108,8 @@ colId.HeaderText = "ID";
       // 
       // colFechaCreacion
       //
-      colFechaCreacion.DataPropertyName = "FechaCreacion";
-      colFechaCreacion.HeaderText = "Fecha Creación";
+      colFechaCreacion.DataPropertyName = "Fecha_Agregar";
+      colFechaCreacion.HeaderText = "Fecha Creaciï¿½n";
       colFechaCreacion.Name = "colFechaCreacion";
       colFechaCreacion.ReadOnly = true;
       colFechaCreacion.Width = 150;
@@ -143,7 +143,7 @@ colId.HeaderText = "ID";
     lblTitulo.Name = "lblTitulo";
        lblTitulo.Size = new Size(197, 28);
          lblTitulo.TabIndex = 3;
-   lblTitulo.Text = "Gestión de Usuarios";
+   lblTitulo.Text = "Gestiï¿½n de Usuarios";
     // 
       // FormUsuarios
   // 

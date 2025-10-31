@@ -12,19 +12,10 @@ public partial class FormPrincipal : Form
 
     private void UsuariosToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        // Buscar si ya existe el formulario de usuarios abierto
-        var formUsuariosExistente = MdiChildren.OfType<FormUsuarios>().FirstOrDefault();
-
-        if (formUsuariosExistente != null)
-        {
-            formUsuariosExistente.Activate();
-        }
-        else
-        {
-            // Crear nuevo formulario de usuarios desde DI
-            var formUsuarios = DependencyInjectionContainer.ObtenerServicio<FormUsuarios>();
-            formUsuarios.MdiParent = this;
-            formUsuarios.Show();
-        }
+        FormUsuarios f = DependencyInjectionContainer.ObtenerServicio<FormUsuarios>();
+        f.MdiParent = this;
+        f.Show();
+        f.Left = (this.Left + this.Width - f.Width) / 2;
+        f.Top = (this.Top + this.Height - f.Height) / 2;
     }
 }
