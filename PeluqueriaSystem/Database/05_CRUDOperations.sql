@@ -3,7 +3,7 @@
 -- Descripción: Puntos 6, 7 y 8 del documento de requerimientos
 -- =============================================
 
-USE [PeluSystem];
+USE [PeluqueriaSystem];
 GO
 
 -- =============================================

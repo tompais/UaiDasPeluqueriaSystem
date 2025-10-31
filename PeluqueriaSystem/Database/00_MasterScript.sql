@@ -91,7 +91,7 @@ PRINT '========================================';
 PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
-PRINT 'Base de datos: PeluSystem';
+PRINT 'Base de datos: PeluqueriaSystem';
 PRINT 'Tablas creadas: Rol, Estado, Usuario';
 PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado';
 PRINT '';

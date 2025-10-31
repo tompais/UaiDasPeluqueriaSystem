@@ -4,7 +4,7 @@
 -- Punto 5 del documento de requerimientos
 -- =============================================
 
-USE [PeluSystem];
+USE [PeluqueriaSystem];
 GO
 
 -- =============================================

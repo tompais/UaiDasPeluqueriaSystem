@@ -1,9 +1,9 @@
 -- =============================================
--- Script: Creación de Tablas
--- Descripción: Crea las tablas Rol, Estado y Usuario con sus restricciones
+-- Script: Creaciï¿½n de Tablas
+-- Descripciï¿½n: Crea las tablas Rol, Estado y Usuario con sus restricciones
 -- =============================================
 
-USE [PeluSystem];
+USE [PeluqueriaSystem];
 GO
 
 -- =============================================
@@ -15,7 +15,7 @@ PRINT 'Creando tabla Rol...';
 IF OBJECT_ID('[dbo].[Rol]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Rol];
- PRINT '  ? Tabla Rol eliminada (ya existía)';
+ PRINT '  ? Tabla Rol eliminada (ya existï¿½a)';
 END
 GO
 
@@ -47,7 +47,7 @@ PRINT 'Creando tabla Estado...';
 IF OBJECT_ID('[dbo].[Estado]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Estado];
-    PRINT '  ? Tabla Estado eliminada (ya existía)';
+    PRINT '  ? Tabla Estado eliminada (ya existï¿½a)';
 END
 GO
 
@@ -79,14 +79,14 @@ PRINT 'Creando tabla Usuario...';
 IF OBJECT_ID('[dbo].[Usuario]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Usuario];
-    PRINT '  ? Tabla Usuario eliminada (ya existía)';
+    PRINT '  ? Tabla Usuario eliminada (ya existï¿½a)';
 END
 GO
 
--- Crear tabla Usuario con mejoras aplicadas:
+-- Crear tabla Usuario simplificada (Parte 4):
 -- - ID autoincremental con IDENTITY(1,1)
 -- - Fecha_Agregar con valor por defecto GETDATE()
--- - Corrección de nombre: Usuario_Modificar (antes Usaurio_modificar)
+-- - Eliminadas columnas: Usuario_Agregar, Usuario_Modificar, Fecha_Modificar
 CREATE TABLE [dbo].[Usuario] (
     [ID] INT NOT NULL IDENTITY(1,1),
     [Apellido] VARCHAR(80) NULL,
@@ -95,18 +95,15 @@ CREATE TABLE [dbo].[Usuario] (
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
     [Clave] VARCHAR(11) NULL,
-  [DV] VARCHAR(50) NULL,
-    [Usuario_Agregar] INT NOT NULL,
-    [Usuario_Modificar] INT NOT NULL,
+    [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
-    [Fecha_Modificar] DATETIME NOT NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (
         [ID] ASC
     ) WITH (
         PAD_INDEX = OFF,
-     STATISTICS_NORECOMPUTE = OFF,
-  IGNORE_DUP_KEY = OFF,
-    ALLOW_ROW_LOCKS = ON,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
         ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
     ) ON [PRIMARY]

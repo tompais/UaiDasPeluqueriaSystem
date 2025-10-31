@@ -1,9 +1,9 @@
 -- =============================================
 -- Script: Ejemplos de Operaciones en Usuario
--- Descripción: Punto 3 del documento - Ejemplos CRUD en Usuario
+-- Descripciï¿½n: Punto 3 del documento - Ejemplos CRUD en Usuario
 -- =============================================
 
-USE [PeluSystem];
+USE [PeluqueriaSystem];
 GO
 
 -- =============================================
@@ -25,8 +25,7 @@ DBCC CHECKIDENT ('[dbo].[Usuario]', RESEED, 0);
 GO
 
 INSERT INTO [dbo].[Usuario] (
-    [Apellido], [Nombre], [Email], [Rol], [Estado], [Clave], [DV],
-    [Usuario_Agregar], [Usuario_Modificar], [Fecha_Modificar]
+    [Apellido], [Nombre], [Email], [Rol], [Estado], [Clave], [DV]
 ) VALUES (
     'Lennon',
     'Jhon',
@@ -34,10 +33,7 @@ INSERT INTO [dbo].[Usuario] (
     1,  -- Rol: Administrador
     1,  -- Estado: Habilitado
     '1234',
- '43534h5jk43h5',
-  1,  -- Usuario que agregó
-    1,  -- Usuario que modificó
-    GETDATE()
+    '43534h5jk43h5'
 );
 GO
 
@@ -79,7 +75,7 @@ GO
 PRINT '? Email actualizado: "jlennon@lennon.com" ? "JLennon@Lennon.com.ar"';
 GO
 
--- Verificar actualización
+-- Verificar actualizaciï¿½n
 SELECT [ID], [Nombre], [Apellido], [Email]
 FROM [dbo].[Usuario]
 WHERE [ID] = 1;
@@ -99,7 +95,7 @@ GO
 PRINT '? Usuario eliminado';
 GO
 
--- Verificar eliminación
+-- Verificar eliminaciï¿½n
 SELECT COUNT(*) AS 'Total Usuarios' FROM [dbo].[Usuario];
 GO
 
