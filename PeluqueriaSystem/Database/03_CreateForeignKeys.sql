@@ -3,7 +3,7 @@
 -- Descripción: Crea las relaciones de integridad referencial
 -- =============================================
 
-USE [PeluqueriaSystem];
+USE [PeluSystem];
 GO
 
 PRINT 'Creando relaciones entre tablas...';

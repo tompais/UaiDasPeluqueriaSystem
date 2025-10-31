@@ -21,22 +21,22 @@ PRINT '';
 USE master;
 GO
 
-IF EXISTS (SELECT name FROM sys.databases WHERE name = N'PeluqueriaSystem')
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'PeluSystem')
 BEGIN
-    ALTER DATABASE [PeluqueriaSystem] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-    DROP DATABASE [PeluqueriaSystem];
-    PRINT '? Base de datos PeluqueriaSystem eliminada correctamente';
+    ALTER DATABASE [PeluSystem] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [PeluSystem];
+    PRINT '? Base de datos PeluSystem eliminada correctamente';
 END
 GO
 
-CREATE DATABASE [PeluqueriaSystem];
+CREATE DATABASE [PeluSystem];
 GO
 
-PRINT '? Base de datos PeluqueriaSystem creada correctamente';
-PRINT '? Contexto cambiado a PeluqueriaSystem';
+PRINT '? Base de datos PeluSystem creada correctamente';
+PRINT '? Contexto cambiado a PeluSystem';
 GO
 
-USE [PeluqueriaSystem];
+USE [PeluSystem];
 GO
 
 PRINT '';
@@ -367,7 +367,7 @@ PRINT '========================================';
 PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
-PRINT 'Base de datos: PeluqueriaSystem';
+PRINT 'Base de datos: PeluSystem';
 PRINT 'Tablas creadas: Rol, Estado, Usuario';
 PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado';
 PRINT '';

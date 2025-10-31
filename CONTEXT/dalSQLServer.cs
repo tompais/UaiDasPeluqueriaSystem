@@ -16,7 +16,7 @@ namespace CONTEXT
             // Permite configurar la cadena de conexi�n mediante variable de entorno
             // Si no est� definida, usa el valor por defecto
             return Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING") 
-                   ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluqueriaSystem;Integrated Security=True";
+                   ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True";
         }
 
         public SqlConnection AbrirConexion()
@@ -26,7 +26,7 @@ namespace CONTEXT
             return con;
         }
 
-        public void CerarConexion()
+        public void CerrarConexion()
         {
             con.Close();
         }

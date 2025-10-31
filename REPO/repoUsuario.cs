@@ -8,13 +8,19 @@ namespace REPO
         {
             List<DOM.domUsuario> lista = new List<DOM.domUsuario>();
             CONTEXT.dalSQLServer sql = new CONTEXT.dalSQLServer();
-            SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = "SELECT * FROM Usuario";
-            cmd.Connection = sql.AbrirConexion();
-            SqlDataReader dr = sql.EjecutarSQL(cmd);
-            lista = CompletarLista(dr, lista);
-            dr.Close();
-            sql.CerarConexion();
+            
+            using (SqlCommand cmd = new SqlCommand())
+            {
+                cmd.CommandText = "SELECT * FROM Usuario";
+                cmd.Connection = sql.AbrirConexion();
+                
+                using (SqlDataReader dr = sql.EjecutarSQL(cmd))
+                {
+                    lista = CompletarLista(dr, lista);
+                }
+            }
+            
+            sql.CerrarConexion();
             return lista;
         }
 
@@ -22,16 +28,18 @@ namespace REPO
         {
             while (dr.Read())
             {
-                DOM.domUsuario u = new DOM.domUsuario();
-                u.ID = int.Parse(dr["ID"].ToString());
-                u.Apellido = dr["Apellido"].ToString();
-                u.Nombre = dr["Nombre"].ToString();
-                u.Email = dr["Email"].ToString();
-                u.Rol = int.Parse(dr["Rol"].ToString());
-                u.Estado = int.Parse(dr["Estado"].ToString());
-                u.Clave = dr["Clave"].ToString();
-                u.DV = dr["DV"].ToString();
-                u.Fecha_Agregar = DateTime.Parse(dr["Fecha_Agregar"].ToString());
+                DOM.domUsuario u = new DOM.domUsuario
+                {
+                    ID = int.Parse(dr["ID"].ToString()),
+                    Apellido = dr["Apellido"].ToString(),
+                    Nombre = dr["Nombre"].ToString(),
+                    Email = dr["Email"].ToString(),
+                    Rol = (DOM.Usuario.RolUsuario)int.Parse(dr["Rol"].ToString()),
+                    Estado = (DOM.Usuario.EstadoUsuario)int.Parse(dr["Estado"].ToString()),
+                    Clave = dr["Clave"].ToString(),
+                    DV = dr["DV"].ToString(),
+                    Fecha_Agregar = DateTime.Parse(dr["Fecha_Agregar"].ToString())
+                };
                 lista.Add(u);
             }
             return lista;

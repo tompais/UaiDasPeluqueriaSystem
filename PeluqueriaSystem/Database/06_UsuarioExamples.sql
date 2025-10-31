@@ -3,7 +3,7 @@
 -- Descripci�n: Punto 3 del documento - Ejemplos CRUD en Usuario
 -- =============================================
 
-USE [PeluqueriaSystem];
+USE [PeluSystem];
 GO
 
 -- =============================================

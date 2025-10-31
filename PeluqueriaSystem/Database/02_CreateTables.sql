@@ -3,7 +3,7 @@
 -- Descripci�n: Crea las tablas Rol, Estado y Usuario con sus restricciones
 -- =============================================
 
-USE [PeluqueriaSystem];
+USE [PeluSystem];
 GO
 
 -- =============================================
@@ -83,10 +83,10 @@ BEGIN
 END
 GO
 
--- Crear tabla Usuario simplificada (Parte 4):
+-- Crear tabla Usuario simplificada:
 -- - ID autoincremental con IDENTITY(1,1)
 -- - Fecha_Agregar con valor por defecto GETDATE()
--- - Eliminadas columnas: Usuario_Agregar, Usuario_Modificar, Fecha_Modificar
+-- - Eliminadas columnas de auditor�a innecesarias
 CREATE TABLE [dbo].[Usuario] (
     [ID] INT NOT NULL IDENTITY(1,1),
     [Apellido] VARCHAR(80) NULL,

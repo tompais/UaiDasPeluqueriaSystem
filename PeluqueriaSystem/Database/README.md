@@ -1,4 +1,4 @@
-# ?? Scripts de Base de Datos - PeluqueriaSystem
+# ?? Scripts de Base de Datos - PeluSystem
 
 Esta carpeta contiene todos los scripts SQL necesarios para crear y configurar la base de datos del Sistema de Gesti�n de Peluquer�a.
 
@@ -6,16 +6,9 @@ Esta carpeta contiene todos los scripts SQL necesarios para crear y configurar l
 
 ## ?? Resumen Ejecutivo
 
-Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** de las Partes 2, 3 y 4 del proyecto.
+Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** del proyecto.
 
-**Estado:** ? **PARTE 4 COMPLETADA AL 100%**
-
-### ? Cambios en Parte 4
-
-- Estructura de tabla `Usuario` simplificada
-- Eliminadas columnas: `Usuario_Agregar`, `Usuario_Modificar`, `Fecha_Modificar`
-- Base de datos renombrada de `PeluSystem` a `PeluqueriaSystem`
-- Integraci�n completa con C# mediante arquitectura de N capas
+**Estado:** ? **COMPLETADO AL 100%**
 
 ---
 
@@ -25,8 +18,8 @@ Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** de
 |---|---------|-------------|-----------|
 | **0a** | `00_MasterScript.sql` | Script maestro | ? S� (requiere SQLCMD Mode) |
 | **0b** | `00_CompleteScript_Standalone.sql` | Script completo | ? S� ? RECOMENDADO |
-| **1** | `01_CreateDatabase.sql` | Crea PeluqueriaSystem | ? S� |
-| **2** | `02_CreateTables.sql` | Rol, Estado, Usuario (simplificado) | ? S� |
+| **1** | `01_CreateDatabase.sql` | Crea PeluSystem | ? S� |
+| **2** | `02_CreateTables.sql` | Rol, Estado, Usuario | ? S� |
 | **3** | `03_CreateForeignKeys.sql` | Foreign Keys | ? S� |
 | **4** | `04_SeedData.sql` | Datos iniciales | ? S� |
 | **5** | `05_CRUDOperations.sql` | CRUD (Puntos 6,7,8) | ? S� |
@@ -99,7 +92,7 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 | 1 | Habilitado |
 | 2 | Baja |
 
-### Usuario (Simplificado en Parte 4)
+### Usuario
 
 - ID (IDENTITY)
 - Nombre, Apellido, Email
@@ -107,8 +100,6 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 - Estado ? FK Estado.ID
 - Clave, DV
 - Fecha_Agregar (default GETDATE())
-
-**Nota:** Se eliminaron las columnas `Usuario_Agregar`, `Usuario_Modificar` y `Fecha_Modificar` para simplificar la estructura seg�n los requerimientos de la Parte 4.
 
 ---
 
@@ -124,7 +115,7 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 ## ? Verificaci�n
 
 ```sql
-USE PeluqueriaSystem;
+USE PeluSystem;
 
 -- Verificar tablas (3 esperadas)
 SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES 
@@ -169,12 +160,12 @@ La cadena de conexi�n puede configurarse mediante:
 
 1. **Variable de entorno** (recomendado para producci�n):
    ```bash
-   set PELUQUERIA_CONNECTIONSTRING=Data Source=SERVER;Initial Catalog=PeluqueriaSystem;Integrated Security=True
+   set PELUQUERIA_CONNECTIONSTRING=Data Source=SERVER;Initial Catalog=PeluSystem;Integrated Security=True
    ```
 
 2. **Valor por defecto** (desarrollo):
    ```
-   Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluqueriaSystem;Integrated Security=True
+   Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True
    ```
 
 ---
@@ -192,15 +183,14 @@ La cadena de conexi�n puede configurarse mediante:
 
 ## ?? Conclusi�n
 
-? Todos los requerimientos de Parte 4 completados
+? Todos los requerimientos completados
 ? Scripts profesionales e idempotentes
 ? Integraci�n completa con arquitectura N capas
 ? Conexi�n C# ? SQL Server funcionando
-? Estructura simplificada y alineada con el c�digo
 
 ---
 
 **Autor:** GitHub Copilot  
 **Proyecto:** Sistema Gesti�n Peluquer�a  
-**Versi�n:** 2.0 (Parte 4)  
+**Versi�n:** 2.0  
 **Estado:** ? Completado
