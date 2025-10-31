@@ -11,7 +11,9 @@ namespace REPO
             SqlCommand cmd = new SqlCommand();
             cmd.CommandText = "SELECT * FROM Usuario";
             cmd.Connection = sql.AbrirConexion();
-            lista = CompletarLista(sql.EjecutarSQL(cmd), lista);
+            SqlDataReader dr = sql.EjecutarSQL(cmd);
+            lista = CompletarLista(dr, lista);
+            dr.Close();
             sql.CerarConexion();
             return lista;
         }
