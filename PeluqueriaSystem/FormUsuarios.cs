@@ -1,4 +1,4 @@
-using ABS.Application;
+using APP;
 
 namespace PeluqueriaSystem;
 
@@ -7,57 +7,40 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormUsuarios : Form
 {
-    private readonly IUsuarioService _usuarioService;
+    private readonly AppUsuario _appUsuario;
 
-    public FormUsuarios(IUsuarioService usuarioService)
+    public FormUsuarios(AppUsuario appUsuario)
     {
         InitializeComponent();
-        _usuarioService = usuarioService;
+        _appUsuario = appUsuario;
     }
 
-    private void FrmUsuarios_Load(object sender, EventArgs e)
-    {
-        CargarUsuarios();
-    }
-
-    private void CargarUsuarios()
+    private void FrmUsuarios_Load(object? sender, EventArgs e)
     {
         try
         {
-            var usuarios = _usuarioService.ObtenerTodos();
-
-            // Cargar datos en el DataGridView
-            dgvUsuarios.DataSource = usuarios.Select(u => new
-            {
-                u.Id,
-                u.Nombre,
-                u.Apellido,
-                u.Email,
-                Estado = u.Estado.ToString(),
-                Rol = u.Rol.ToString(),
-                u.FechaCreacion
-            }).ToList();
+            dgvUsuarios.DataSource = _appUsuario.Traer();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error al cargar usuarios: {ex.Message}", "Error",
-                       MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
-    private void btnNuevo_Click(object sender, EventArgs e)
+    private void BtnNuevo_Click(object sender, EventArgs e)
     {
         var formAlta = DependencyInjectionContainer.ObtenerServicio<FormAltaUsuario>();
 
         if (formAlta.ShowDialog() == DialogResult.OK)
         {
-            // Recargar la lista después de crear un usuario
-            CargarUsuarios();
+            // Recargar la lista despuï¿½s de crear un usuario
+            FrmUsuarios_Load(null, EventArgs.Empty);
         }
     }
 
     private void BtnRefrescar_Click(object sender, EventArgs e)
     {
-        CargarUsuarios();
+        FrmUsuarios_Load(null, EventArgs.Empty);
     }
 }

@@ -1,29 +1,29 @@
-# Sistema de Gestión para Peluquería
+# Sistema de Gestiï¿½n para Peluquerï¿½a
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4)](https://dotnet.microsoft.com/)
 [![C#](https://img.shields.io/badge/C%23-12.0-239120)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Sistema de gestión de usuarios para peluquería desarrollado con **Windows Forms (.NET 8)** siguiendo principios de **Clean Architecture**, **SOLID**, y **Clean Code**.
+Sistema de gestiï¿½n de usuarios para peluquerï¿½a desarrollado con **Windows Forms (.NET 8)** siguiendo principios de **Clean Architecture**, **SOLID**, y **Clean Code**.
 
 ---
 
-## ?? Descripción del Proyecto
+## ?? Descripciï¿½n del Proyecto
 
-Este proyecto implementa la funcionalidad de **Alta de Usuario (CU8.1)** para un sistema de gestión de peluquería, demostrando la aplicación práctica de:
+Este proyecto implementa la funcionalidad de **Alta de Usuario (CU8.1)** para un sistema de gestiï¿½n de peluquerï¿½a, demostrando la aplicaciï¿½n prï¿½ctica de:
 
-- ? **Clean Architecture** - Separación en capas con proyectos independientes
+- ? **Clean Architecture** - Separaciï¿½n en capas con proyectos independientes
 - ? **SOLID** - Todos los principios aplicados
-- ? **Clean Code** - Código limpio, claro y mantenible
-- ? **DRY** - Sin duplicación de lógica
+- ? **Clean Code** - Cï¿½digo limpio, claro y mantenible
+- ? **DRY** - Sin duplicaciï¿½n de lï¿½gica
 - ? **YAGNI** - Solo lo necesario implementado
 - ? **Dependency Injection** - Desacoplamiento mediante interfaces
 
-?? **Nota:** Este proyecto **no usa base de datos**. La persistencia es completamente **en memoria** para fines educativos.
+?? **Nota:** Este proyecto utiliza **SQL Server** para persistencia de datos. La arquitectura sigue un modelo N-capas con acceso a base de datos real.
 
 ---
 
-## ?? Inicio Rápido
+## ?? Inicio Rï¿½pido
 
 ### Prerrequisitos
 
@@ -33,7 +33,7 @@ Este proyecto implementa la funcionalidad de **Alta de Usuario (CU8.1)** para un
 
 ### Ejecutar el Proyecto
 
-1. **Clonar o abrir la solución**
+1. **Clonar o abrir la soluciï¿½n**
    ```bash
    # Si usas git
    git clone [url-del-repo]
@@ -42,17 +42,17 @@ Este proyecto implementa la funcionalidad de **Alta de Usuario (CU8.1)** para un
 
 2. **Abrir en Visual Studio**
    - Doble clic en `PeluqueriaSystem.sln`
-   - O desde Visual Studio: `Archivo > Abrir > Proyecto/Solución`
+   - O desde Visual Studio: `Archivo > Abrir > Proyecto/Soluciï¿½n`
 
 3. **Compilar y ejecutar**
-   - Presionar **F5** o clic en el botón "? Iniciar"
+   - Presionar **F5** o clic en el botï¿½n "? Iniciar"
    - O usar el comando:
      ```bash
      dotnet run --project PeluqueriaSystem
      ```
 
-4. **Usar la aplicación**
-   - En el formulario principal, ir a: **Administración ? Usuarios**
+4. **Usar la aplicaciï¿½n**
+   - En el formulario principal, ir a: **Administraciï¿½n ? Usuarios**
    - Clic en **Nuevo Usuario**
    - Completar formulario (?? la clave debe tener **exactamente 11 caracteres**)
    - Guardar y verificar en la lista
@@ -71,7 +71,7 @@ PeluqueriaSystem.sln
 ??? SERV/       # ?? Servicios auxiliares (EncriptacionService)
 ??? CONTEXT/       # ?? Contexto de datos en memoria (InMemoryContext)
 ??? REPO/     # ?? Repositorio CRUD (UsuarioRepository)
-??? APP/           # ?? Lógica de negocio (UsuarioService)
+??? APP/           # ?? Lï¿½gica de negocio (UsuarioService)
 ??? PeluqueriaSystem/ # ??? Interfaz de usuario (Windows Forms)
     ??? frmPrincipal.cs      # MDI Principal
     ??? frmUsuarios.cs  # Listado
@@ -83,48 +83,50 @@ PeluqueriaSystem.sln
 ```
     UI (PeluqueriaSystem)
   ?
-    APP (Lógica de Negocio)
+    APP (Lï¿½gica de Negocio - AppUsuario)
   ?
-    REPO (Repositorio) + SERV (Servicios)
+    REPO (Repositorio - RepoUsuario) + SERV (Servicios - EncriptacionService)
       ?
-    CONTEXT (Datos en Memoria)
+    CONTEXT (Acceso a Datos - DalSQLServer)
            ?
-    DOM (Entidades)
+    SQL Server Database (PeluSystem)
+           ?
+    DOM (Entidades - DomUsuario)
            ?
     ABS (Interfaces) ? Todas las capas dependen de abstracciones
 ```
 
-**Principio clave:** Las dependencias apuntan hacia adentro (hacia el dominio).
+**Principio clave:** Las dependencias apuntan hacia adentro (hacia el dominio), con persistencia en SQL Server.
 
 ---
 
-## ? Características Implementadas
+## ? Caracterï¿½sticas Implementadas
 
 ### Funcionalidad CU8.1 - Alta de Usuario
 
-| Característica | Descripción |
+| Caracterï¿½stica | Descripciï¿½n |
 |---------------|-------------|
-| ? **Formulario MDI** | Contenedor principal con menú de navegación |
+| ? **Formulario MDI** | Contenedor principal con menï¿½ de navegaciï¿½n |
 | ? **Listado de usuarios** | DataGridView con todos los usuarios registrados |
 | ? **Alta de usuario** | Formulario modal con validaciones completas |
-| ? **Validaciones robustas** | En UI y en lógica de negocio |
-| ? **Encriptación SHA256** | Claves nunca en texto plano |
-| ? **Email único** | No permite emails duplicados |
-| ? **IDs autogenerados** | Asignación automática y única |
-| ? **Thread-safe** | Operaciones concurrentes protegidas |
+| ? **Validaciones robustas** | En UI y en lï¿½gica de negocio |
+| ? **Encriptaciï¿½n SHA256** | Claves nunca en texto plano |
+| ? **Email ï¿½nico** | No permite emails duplicados |
+| ? **IDs autogenerados** | Asignaciï¿½n automï¿½tica por SQL Server (IDENTITY) |
+| ? **Persistencia SQL** | Datos almacenados en SQL Server |
 
 ### Campos del Usuario
 
-| Campo | Tipo | Validación |
+| Campo | Tipo | Validaciï¿½n |
 |-------|------|------------|
-| **ID** | int | Autogenerado, único, no nulo |
-| **Nombre** | string | Obligatorio, máx. 50 caracteres |
-| **Apellido** | string | Obligatorio, máx. 80 caracteres |
-| **Email** | string | Formato válido, único, máx. 180 caracteres |
+| **ID** | int | Autogenerado, ï¿½nico, no nulo |
+| **Nombre** | string | Obligatorio, mï¿½x. 50 caracteres |
+| **Apellido** | string | Obligatorio, mï¿½x. 80 caracteres |
+| **Email** | string | Formato vï¿½lido, ï¿½nico, mï¿½x. 180 caracteres |
 | **Clave** | string | **Exactamente 11 caracteres**, encriptada SHA256 |
 | **Estado** | enum | Activo (0) o Baja (1) |
 | **Rol** | int | Rango 0-9 |
-| **FechaCreacion** | DateTime | Automático al crear |
+| **FechaCreacion** | DateTime | Automï¿½tico al crear |
 | **UsuarioCreacion** | string | Registrado en el sistema |
 
 ---
@@ -133,10 +135,10 @@ PeluqueriaSystem.sln
 
 ### SOLID
 
-- **S**ingle Responsibility: Cada clase tiene una única responsabilidad
-- **O**pen/Closed: Extensible mediante interfaces sin modificar código
+- **S**ingle Responsibility: Cada clase tiene una ï¿½nica responsabilidad
+- **O**pen/Closed: Extensible mediante interfaces sin modificar cï¿½digo
 - **L**iskov Substitution: Todas las implementaciones sustituibles por sus interfaces
-- **I**nterface Segregation: Interfaces específicas y cohesivas
+- **I**nterface Segregation: Interfaces especï¿½ficas y cohesivas
 - **D**ependency Inversion: Dependencias mediante abstracciones (DI)
 
 ### Clean Architecture
@@ -150,10 +152,10 @@ PeluqueriaSystem.sln
 ### Clean Code
 
 - ? Nombres descriptivos y claros
-- ? Métodos pequeños y cohesivos
-- ? Sin código duplicado
-- ? Comentarios XML en APIs públicas
-- ? Sin código muerto
+- ? Mï¿½todos pequeï¿½os y cohesivos
+- ? Sin cï¿½digo duplicado
+- ? Comentarios XML en APIs pï¿½blicas
+- ? Sin cï¿½digo muerto
 
 ### Dependency Injection
 
@@ -168,46 +170,48 @@ PeluqueriaSystem.sln
 
 ### ? Casos Positivos
 
-1. **Crear usuario con datos válidos**
+1. **Crear usuario con datos vï¿½lidos**
    - Todos los campos completos y correctos
    - Resultado: Usuario creado exitosamente
 
-2. **Crear múltiples usuarios**
+2. **Crear mï¿½ltiples usuarios**
    - Varios usuarios con emails diferentes
-   - Resultado: Todos se crean con IDs únicos
+   - Resultado: Todos se crean con IDs ï¿½nicos
 
 ### ? Casos Negativos
 
 1. **Email duplicado**
    - Intentar crear usuario con email existente
-   - Resultado: Error "El email ya está registrado"
+   - Resultado: Error "El email ya estï¿½ registrado"
 
 2. **Clave con longitud incorrecta**
- - Clave con menos o más de 11 caracteres
+ - Clave con menos o mï¿½s de 11 caracteres
    - Resultado: Error "La clave debe tener exactamente 11 caracteres"
 
-3. **Email inválido**
+3. **Email invï¿½lido**
    - Formato de email incorrecto
-   - Resultado: Error "El formato del email no es válido"
+   - Resultado: Error "El formato del email no es vï¿½lido"
 
-4. **Campos vacíos**
+4. **Campos vacï¿½os**
    - Dejar campos obligatorios sin llenar
-   - Resultado: Lista de errores de validación
+   - Resultado: Lista de errores de validaciï¿½n
 
-Ver más casos de prueba en [`DEVELOPMENT.md`](DEVELOPMENT.md)
+Ver mï¿½s casos de prueba en [`DEVELOPMENT.md`](DEVELOPMENT.md)
 
 ---
 
-## ?? Tecnologías y Paquetes
+## ?? Tecnologï¿½as y Paquetes
 
 ### Stack Principal
 
 - **.NET 8.0** - Framework
 - **C# 12** - Lenguaje
 - **Windows Forms** - UI
+- **SQL Server** - Base de datos
+- **System.Data.SqlClient** - Proveedor de datos ADO.NET
 - **Microsoft.Extensions.DependencyInjection** - Contenedor DI
 
-### Características de C# Utilizadas
+### Caracterï¿½sticas de C# Utilizadas
 
 - ? Nullable Reference Types (NRT)
 - ? Record types
@@ -220,40 +224,41 @@ Ver más casos de prueba en [`DEVELOPMENT.md`](DEVELOPMENT.md)
 
 ## ?? Seguridad
 
-- **Encriptación de claves**: SHA256 (hash unidireccional)
+- **Encriptaciï¿½n de claves**: SHA256 (hash unidireccional)
 - **Sin texto plano**: Las claves nunca se almacenan sin encriptar
-- **Thread-safety**: Operaciones en memoria protegidas con locks
-- **Validación de entrada**: En UI y en lógica de negocio
+- **Transacciones SQL**: Integridad de datos garantizada
+- **Validaciï¿½n de entrada**: En UI y en lï¿½gica de negocio
+- **Conexiï¿½n segura**: Integrated Security con SQL Server
 
-?? **Nota de producción:** Para sistemas reales, se recomienda usar `BCrypt` o `Argon2` con salt automático en lugar de SHA256.
+?? **Nota de producciï¿½n:** Para sistemas reales, se recomienda usar `BCrypt` o `Argon2` con salt automï¿½tico en lugar de SHA256.
 
 ---
 
-## ?? Documentación Adicional
+## ?? Documentaciï¿½n Adicional
 
-- [`DEVELOPMENT.md`](DEVELOPMENT.md) - Guía técnica detallada, arquitectura y casos de prueba
-- Comentarios XML en el código para IntelliSense
+- [`DEVELOPMENT.md`](DEVELOPMENT.md) - Guï¿½a tï¿½cnica detallada, arquitectura y casos de prueba
+- Comentarios XML en el cï¿½digo para IntelliSense
 
 ---
 
 ## ?? Futuras Extensiones (Sugeridas)
 
-El proyecto está diseñado para ser fácilmente extensible:
+El proyecto estï¿½ diseï¿½ado para ser fï¿½cilmente extensible:
 
-- [ ] Modificación de usuarios (CRUD Update)
-- [ ] Eliminación lógica (cambiar Estado a Baja)
-- [ ] Búsqueda y filtros en el listado
-- [ ] Sistema de roles y permisos
-- [ ] Migración a base de datos (SQL Server + Entity Framework)
+- [ ] Modificaciï¿½n de usuarios (CRUD Update)
+- [ ] Eliminaciï¿½n lï¿½gica (cambiar Estado a Baja)
+- [ ] Bï¿½squeda y filtros en el listado
+- [ ] Sistema de roles y permisos extendido
+- [ ] Migraciï¿½n a Entity Framework Core
 - [ ] Tests unitarios con xUnit/NUnit
 - [ ] Logging con ILogger
 - [ ] API REST
 
-Para agregar nuevas funcionalidades, seguir el mismo patrón:
+Para agregar nuevas funcionalidades, seguir el mismo patrï¿½n:
 1. Agregar entidad en **DOM**
 2. Crear interfaces en **ABS**
 3. Implementar en **REPO/SERV**
-4. Lógica de negocio en **APP**
+4. Lï¿½gica de negocio en **APP**
 5. UI en **PeluqueriaSystem**
 6. Registrar en DI
 
@@ -263,22 +268,22 @@ Para agregar nuevas funcionalidades, seguir el mismo patrón:
 
 Este es un proyecto educativo. Si deseas mejorarlo:
 
-1. Mantén los principios SOLID y Clean Architecture
-2. Sigue las convenciones de código existentes
+1. Mantï¿½n los principios SOLID y Clean Architecture
+2. Sigue las convenciones de cï¿½digo existentes
 3. Agrega tests para nuevas funcionalidades
-4. Actualiza la documentación
+4. Actualiza la documentaciï¿½n
 
 ---
 
 ## ?? Licencia
 
-Este proyecto es de código abierto con fines educativos.
+Este proyecto es de cï¿½digo abierto con fines educativos.
 
 ---
 
 ## ????? Autor
 
-Desarrollado como proyecto académico para demostrar la aplicación práctica de:
+Desarrollado como proyecto acadï¿½mico para demostrar la aplicaciï¿½n prï¿½ctica de:
 - Clean Architecture
 - Principios SOLID
 - Clean Code
@@ -289,7 +294,7 @@ Desarrollado como proyecto académico para demostrar la aplicación práctica de:
 ## ?? Soporte
 
 Para dudas o problemas:
-1. Revisa la documentación en [`DEVELOPMENT.md`](DEVELOPMENT.md)
+1. Revisa la documentaciï¿½n en [`DEVELOPMENT.md`](DEVELOPMENT.md)
 2. Verifica que el proyecto compile: `dotnet build`
 3. Restaura paquetes NuGet si es necesario: `dotnet restore`
 
@@ -297,6 +302,6 @@ Para dudas o problemas:
 
 **Estado del Proyecto:** ? **Completo y Funcional**
 
-**Compilación:** ? Sin errores ni warnings
+**Compilaciï¿½n:** ? Sin errores ni warnings
 
 **Cumplimiento:** ? 100% de requerimientos implementados

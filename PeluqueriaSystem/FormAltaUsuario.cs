@@ -1,4 +1,4 @@
-using ABS.Application;
+using APP;
 using DOM;
 
 namespace PeluqueriaSystem;
@@ -8,68 +8,114 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormAltaUsuario : Form
 {
-    private readonly IUsuarioService _usuarioService;
+    private readonly AppUsuario _appUsuario;
 
-    public FormAltaUsuario(IUsuarioService usuarioService)
+    public FormAltaUsuario(AppUsuario appUsuario)
     {
         InitializeComponent();
-        _usuarioService = usuarioService;
+        _appUsuario = appUsuario;
 
         // Inicializar ComboBox de roles
-        cmbRol.DataSource = Enum.GetValues(typeof(Usuario.RolUsuario));
+        cmbRol.DataSource = Enum.GetValues(typeof(DomUsuario.RolUsuario));
         cmbRol.SelectedIndex = 0; // Cliente por defecto
+
+        // Suscribir eventos para validaci贸n en tiempo real
+        txtNombre.TextChanged += ValidarFormulario;
+        txtApellido.TextChanged += ValidarFormulario;
+        txtEmail.TextChanged += ValidarFormulario;
+        txtClave.TextChanged += ValidarFormulario;
+
+        // Validaci贸n inicial
+        ValidarFormulario(null, EventArgs.Empty);
+    }
+
+    private void ValidarFormulario(object? sender, EventArgs e)
+    {
+        var errores = ObtenerErroresValidacion();
+        btnGuardar.Enabled = errores.Count == 0;
+    }
+
+    private List<string> ObtenerErroresValidacion()
+    {
+        var errores = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(txtNombre.Text))
+            errores.Add("El nombre es obligatorio");
+        else if (txtNombre.Text.Length > 50)
+            errores.Add("El nombre no puede superar los 50 caracteres");
+
+        if (string.IsNullOrWhiteSpace(txtApellido.Text))
+            errores.Add("El apellido es obligatorio");
+        else if (txtApellido.Text.Length > 80)
+            errores.Add("El apellido no puede superar los 80 caracteres");
+
+        if (string.IsNullOrWhiteSpace(txtEmail.Text))
+            errores.Add("El email es obligatorio");
+        else if (txtEmail.Text.Length > 180)
+            errores.Add("El email no puede superar los 180 caracteres");
+
+        if (string.IsNullOrWhiteSpace(txtClave.Text))
+            errores.Add("La clave es obligatoria");
+        else if (txtClave.Text.Length != 11)
+            errores.Add("La clave debe tener exactamente 11 caracteres");
+
+        return errores;
     }
 
     private void BtnGuardar_Click(object sender, EventArgs e)
     {
+        var exitoso = false;
+
         try
         {
             // Deshabilitar botones mientras se procesa
             btnGuardar.Enabled = false;
             btnCancelar.Enabled = false;
 
-            // Crear Request
-            var request = new CrearUsuarioRequest(
-                Nombre: txtNombre.Text,
-                Apellido: txtApellido.Text,
-                Email: txtEmail.Text,
-                Clave: txtClave.Text,
-                Rol: (Usuario.RolUsuario)(cmbRol.SelectedItem ?? Usuario.RolUsuario.Cliente)
-            );
+            // Validar nuevamente por seguridad
+            var errores = ObtenerErroresValidacion();
 
-            // Llamar al servicio
-            var resultado = _usuarioService.CrearUsuario(request);
-
-            if (resultado.Exitoso)
+            if (errores.Count == 0)
             {
-                MessageBox.Show(resultado.Mensaje, "蓌ito",
-               MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DialogResult = DialogResult.OK;
-                Close();
+                // Verificar que el email no exista
+                if (!_appUsuario.ExisteEmail(txtEmail.Text))
+                {
+                    // Crear usuario
+                    var rol = (DomUsuario.RolUsuario)(cmbRol.SelectedItem ?? DomUsuario.RolUsuario.Cliente);
+                    _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
+
+                    MessageBox.Show("Usuario creado exitosamente", "脡xito",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    exitoso = true;
+                }
+                else
+                {
+                    MessageBox.Show("El email ya est谩 registrado", "Error de Validaci贸n",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             else
             {
-                // Mostrar errores de validaci髇
-                var mensajeError = resultado.Mensaje;
-                if (resultado.Errores.Count != 0)
-                {
-                    mensajeError += "\n\nDetalles:\n" + string.Join("\n", resultado.Errores);
-                }
-
-                MessageBox.Show(mensajeError, "Error de Validaci髇",
-                   MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Error de validaci贸n:\n\n" + string.Join("\n", errores),
+                    "Error de Validaci贸n", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error inesperado: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
             // Rehabilitar botones
             btnGuardar.Enabled = true;
             btnCancelar.Enabled = true;
+
+            if (exitoso)
+            {
+                DialogResult = DialogResult.OK;
+                Close();
+            }
         }
     }
 
