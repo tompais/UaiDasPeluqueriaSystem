@@ -16,7 +16,7 @@ public partial class FormAltaUsuario : Form
         _appUsuario = appUsuario;
 
         // Inicializar ComboBox de roles
-        cmbRol.DataSource = Enum.GetValues(typeof(Usuario.RolUsuario));
+        cmbRol.DataSource = Enum.GetValues(typeof(domUsuario.RolUsuario));
         cmbRol.SelectedIndex = 0; // Cliente por defecto
     }
 
@@ -67,7 +67,7 @@ public partial class FormAltaUsuario : Form
             }
 
             // Crear usuario
-            var rol = (Usuario.RolUsuario)(cmbRol.SelectedItem ?? Usuario.RolUsuario.Cliente);
+            var rol = (domUsuario.RolUsuario)(cmbRol.SelectedItem ?? domUsuario.RolUsuario.Cliente);
             _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
 
             MessageBox.Show("Usuario creado exitosamente", "Éxito",

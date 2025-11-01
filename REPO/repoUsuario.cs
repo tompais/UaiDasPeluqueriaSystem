@@ -109,8 +109,8 @@ namespace REPO
                     Apellido = dr["Apellido"].ToString(),
                     Nombre = dr["Nombre"].ToString(),
                     Email = dr["Email"].ToString(),
-                    Rol = (DOM.Usuario.RolUsuario)Convert.ToInt32(dr["Rol"]),
-                    Estado = (DOM.Usuario.EstadoUsuario)Convert.ToInt32(dr["Estado"]),
+                    Rol = (DOM.domUsuario.RolUsuario)Convert.ToInt32(dr["Rol"]),
+                    Estado = (DOM.domUsuario.EstadoUsuario)Convert.ToInt32(dr["Estado"]),
                     Clave = dr["Clave"].ToString(),
                     DV = dr["DV"].ToString(),
                     Fecha_Agregar = Convert.ToDateTime(dr["Fecha_Agregar"])

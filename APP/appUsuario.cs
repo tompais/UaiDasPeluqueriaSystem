@@ -16,7 +16,7 @@ namespace APP
 
         public List<DOM.domUsuario> Traer() => _repository.Traer();
 
-        public DOM.domUsuario Crear(string nombre, string apellido, string email, string clave, DOM.Usuario.RolUsuario rol)
+        public DOM.domUsuario Crear(string nombre, string apellido, string email, string clave, DOM.domUsuario.RolUsuario rol)
         {
             var usuario = new DOM.domUsuario
             {
@@ -25,7 +25,7 @@ namespace APP
                 Email = email.Trim().ToLowerInvariant(),
                 Clave = _encriptacionService.Encriptar(clave),
                 Rol = rol,
-                Estado = DOM.Usuario.EstadoUsuario.Activo,
+                Estado = DOM.domUsuario.EstadoUsuario.Activo,
                 DV = "" // Dígito verificador - por ahora vacío
             };
 
