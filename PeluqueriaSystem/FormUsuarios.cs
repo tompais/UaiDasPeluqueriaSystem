@@ -1,4 +1,3 @@
-using ABS.Application;
 using APP;
 
 namespace PeluqueriaSystem;
@@ -8,13 +7,11 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormUsuarios : Form
 {
-    private readonly IUsuarioService _usuarioService;
     private readonly appUsuario _appUsuario;
 
-    public FormUsuarios(IUsuarioService usuarioService, appUsuario appUsuario)
+    public FormUsuarios(appUsuario appUsuario)
     {
         InitializeComponent();
-        _usuarioService = usuarioService;
         _appUsuario = appUsuario;
     }
 
