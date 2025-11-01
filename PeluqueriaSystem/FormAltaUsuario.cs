@@ -1,4 +1,4 @@
-using ABS.Application;
+using APP;
 using DOM;
 
 namespace PeluqueriaSystem;
@@ -8,12 +8,12 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormAltaUsuario : Form
 {
-    private readonly IUsuarioService _usuarioService;
+    private readonly appUsuario _appUsuario;
 
-    public FormAltaUsuario(IUsuarioService usuarioService)
+    public FormAltaUsuario(appUsuario appUsuario)
     {
         InitializeComponent();
-        _usuarioService = usuarioService;
+        _appUsuario = appUsuario;
 
         // Inicializar ComboBox de roles
         cmbRol.DataSource = Enum.GetValues(typeof(Usuario.RolUsuario));
@@ -28,42 +28,57 @@ public partial class FormAltaUsuario : Form
             btnGuardar.Enabled = false;
             btnCancelar.Enabled = false;
 
-            // Crear Request
-            var request = new CrearUsuarioRequest(
-                Nombre: txtNombre.Text,
-                Apellido: txtApellido.Text,
-                Email: txtEmail.Text,
-                Clave: txtClave.Text,
-                Rol: (Usuario.RolUsuario)(cmbRol.SelectedItem ?? Usuario.RolUsuario.Cliente)
-            );
+            // Validaciones básicas
+            var errores = new List<string>();
 
-            // Llamar al servicio
-            var resultado = _usuarioService.CrearUsuario(request);
+            if (string.IsNullOrWhiteSpace(txtNombre.Text))
+                errores.Add("El nombre es obligatorio");
+            else if (txtNombre.Text.Length > 50)
+                errores.Add("El nombre no puede superar los 50 caracteres");
 
-            if (resultado.Exitoso)
+            if (string.IsNullOrWhiteSpace(txtApellido.Text))
+                errores.Add("El apellido es obligatorio");
+            else if (txtApellido.Text.Length > 80)
+                errores.Add("El apellido no puede superar los 80 caracteres");
+
+            if (string.IsNullOrWhiteSpace(txtEmail.Text))
+                errores.Add("El email es obligatorio");
+            else if (txtEmail.Text.Length > 180)
+                errores.Add("El email no puede superar los 180 caracteres");
+
+            if (string.IsNullOrWhiteSpace(txtClave.Text))
+                errores.Add("La clave es obligatoria");
+            else if (txtClave.Text.Length != 11)
+                errores.Add("La clave debe tener exactamente 11 caracteres");
+
+            if (errores.Count > 0)
             {
-                MessageBox.Show(resultado.Mensaje, "�xito",
-               MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DialogResult = DialogResult.OK;
-                Close();
+                MessageBox.Show("Error de validación:\n\n" + string.Join("\n", errores), 
+                    "Error de Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
-            else
-            {
-                // Mostrar errores de validaci�n
-                var mensajeError = resultado.Mensaje;
-                if (resultado.Errores.Count != 0)
-                {
-                    mensajeError += "\n\nDetalles:\n" + string.Join("\n", resultado.Errores);
-                }
 
-                MessageBox.Show(mensajeError, "Error de Validaci�n",
-                   MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            // Verificar que el email no exista
+            if (_appUsuario.ExisteEmail(txtEmail.Text))
+            {
+                MessageBox.Show("El email ya está registrado", "Error de Validación",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            // Crear usuario
+            var rol = (Usuario.RolUsuario)(cmbRol.SelectedItem ?? Usuario.RolUsuario.Cliente);
+            _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
+
+            MessageBox.Show("Usuario creado exitosamente", "Éxito",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            DialogResult = DialogResult.OK;
+            Close();
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error inesperado: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {

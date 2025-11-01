@@ -6,4 +6,6 @@ namespace ABS.Repositories;
 public interface IUsuarioDbRepository
 {
     List<DOM.domUsuario> Traer();
+    DOM.domUsuario Crear(DOM.domUsuario usuario);
+    bool ExisteEmail(string email);
 }
