@@ -1,10 +1,16 @@
+using ABS.Repositories;
+
 namespace APP
 {
     public class appUsuario
     {
-        public List<DOM.domUsuario> Traer()
+        private readonly IUsuarioDbRepository _repository;
+
+        public appUsuario(IUsuarioDbRepository repository)
         {
-            return REPO.repoUsuario.Traer();
+            _repository = repository;
         }
+
+        public List<DOM.domUsuario> Traer() => _repository.Traer();
     }
 }

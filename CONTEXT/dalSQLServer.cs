@@ -1,8 +1,9 @@
 using System.Data.SqlClient;
+using ABS.Context;
 
 namespace CONTEXT
 {
-    public class dalSQLServer
+    public class dalSQLServer : IDataAccess
     {
         private SqlConnection con;
 

@@ -1,44 +1,58 @@
 using System.Data.SqlClient;
+using ABS.Context;
+using ABS.Repositories;
 
 namespace REPO
 {
-    public static class repoUsuario
+    public class repoUsuario : IUsuarioDbRepository
     {
-        public static List<DOM.domUsuario> Traer()
+        private readonly IDataAccess _dataAccess;
+
+        public repoUsuario(IDataAccess dataAccess)
+        {
+            _dataAccess = dataAccess;
+        }
+
+        public List<DOM.domUsuario> Traer()
         {
             List<DOM.domUsuario> lista = new List<DOM.domUsuario>();
-            CONTEXT.dalSQLServer sql = new CONTEXT.dalSQLServer();
             
-            using (SqlCommand cmd = new SqlCommand())
+            try
             {
-                cmd.CommandText = "SELECT * FROM Usuario";
-                cmd.Connection = sql.AbrirConexion();
-                
-                using (SqlDataReader dr = sql.EjecutarSQL(cmd))
+                using (SqlCommand cmd = new SqlCommand())
                 {
-                    lista = CompletarLista(dr, lista);
+                    cmd.CommandText = "SELECT * FROM Usuario";
+                    cmd.Connection = _dataAccess.AbrirConexion();
+                    
+                    using (SqlDataReader dr = _dataAccess.EjecutarSQL(cmd))
+                    {
+                        lista = CompletarLista(dr, lista);
+                    }
                 }
             }
+            finally
+            {
+                _dataAccess.CerrarConexion();
+            }
             
-            sql.CerrarConexion();
             return lista;
         }
 
-        private static List<DOM.domUsuario> CompletarLista(SqlDataReader dr, List<DOM.domUsuario> lista)
+        private List<DOM.domUsuario> CompletarLista(SqlDataReader dr, List<DOM.domUsuario> lista)
         {
             while (dr.Read())
             {
                 DOM.domUsuario u = new DOM.domUsuario
                 {
-                    ID = int.Parse(dr["ID"].ToString()),
+                    ID = Convert.ToInt32(dr["ID"]),
                     Apellido = dr["Apellido"].ToString(),
                     Nombre = dr["Nombre"].ToString(),
                     Email = dr["Email"].ToString(),
-                    Rol = (DOM.Usuario.RolUsuario)int.Parse(dr["Rol"].ToString()),
-                    Estado = (DOM.Usuario.EstadoUsuario)int.Parse(dr["Estado"].ToString()),
+                    Rol = (DOM.Usuario.RolUsuario)Convert.ToInt32(dr["Rol"]),
+                    Estado = (DOM.Usuario.EstadoUsuario)Convert.ToInt32(dr["Estado"]),
                     Clave = dr["Clave"].ToString(),
                     DV = dr["DV"].ToString(),
-                    Fecha_Agregar = DateTime.Parse(dr["Fecha_Agregar"].ToString())
+                    Fecha_Agregar = Convert.ToDateTime(dr["Fecha_Agregar"])
                 };
                 lista.Add(u);
             }

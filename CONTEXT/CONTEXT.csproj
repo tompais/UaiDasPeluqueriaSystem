@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ABS\ABS.csproj" />
     <ProjectReference Include="..\DOM\DOM.csproj" />
   </ItemGroup>
 

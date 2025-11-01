@@ -1,4 +1,5 @@
 using ABS.Application;
+using ABS.Context;
 using ABS.Repositories;
 using ABS.Services;
 using APP;
@@ -23,12 +24,17 @@ public static class DependencyInjectionContainer
         // Contexto (Singleton para mantener datos en memoria)
         services.AddSingleton<InMemoryContext>();
 
+        // Data Access Layer
+        services.AddScoped<IDataAccess, dalSQLServer>();
+
         // Repositorios
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IUsuarioDbRepository, repoUsuario>();
 
-        // Servicios
+        // Servicios de aplicación
         services.AddScoped<IEncriptacionService, EncriptacionService>();
         services.AddScoped<IUsuarioService, UsuarioService>();
+        services.AddScoped<appUsuario>();
 
         // Formularios
         services.AddTransient<FormPrincipal>();
