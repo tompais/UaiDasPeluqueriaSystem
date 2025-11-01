@@ -17,23 +17,11 @@ public class UsuarioRepository(InMemoryContext context) : IUsuarioRepository
         return usuario;
     }
 
-    public Usuario? ObtenerPorId(int id)
-    {
-        return _context.ObtenerUsuarioPorId(id);
-    }
+    public Usuario? ObtenerPorId(int id) => _context.ObtenerUsuarioPorId(id);
 
-    public Usuario? ObtenerPorEmail(string email)
-    {
-        return _context.ObtenerUsuarioPorEmail(email);
-    }
+    public Usuario? ObtenerPorEmail(string email) => _context.ObtenerUsuarioPorEmail(email);
 
-    public IEnumerable<Usuario> ObtenerTodos()
-    {
-        return _context.Usuarios;
-    }
+    public IEnumerable<Usuario> ObtenerTodos() => _context.Usuarios;
 
-    public bool ExisteEmail(string email)
-    {
-        return _context.ExisteEmail(email);
-    }
+    public bool ExisteEmail(string email) => _context.ExisteEmail(email);
 }

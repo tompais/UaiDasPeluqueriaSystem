@@ -12,13 +12,11 @@ namespace CONTEXT
             con = new SqlConnection();
         }
 
-        private string StringConexion()
-        {
+        private string StringConexion() =>
             // Permite configurar la cadena de conexi�n mediante variable de entorno
             // Si no est� definida, usa el valor por defecto
-            return Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING") 
-                   ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True";
-        }
+            Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING") 
+            ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True";
 
         public SqlConnection AbrirConexion()
         {
@@ -27,14 +25,8 @@ namespace CONTEXT
             return con;
         }
 
-        public void CerrarConexion()
-        {
-            con.Close();
-        }
+        public void CerrarConexion() => con.Close();
 
-        public SqlDataReader EjecutarSQL(SqlCommand cmd)
-        {
-            return cmd.ExecuteReader();
-        }
+        public SqlDataReader EjecutarSQL(SqlCommand cmd) => cmd.ExecuteReader();
     }
 }

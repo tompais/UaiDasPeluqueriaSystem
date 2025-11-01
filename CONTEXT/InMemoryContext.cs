@@ -3,7 +3,7 @@ using DOM;
 namespace CONTEXT;
 
 /// <summary>
-/// Contexto en memoria para almacenar los datos de la aplicación
+/// Contexto en memoria para almacenar los datos de la aplicaciï¿½n
 /// </summary>
 public class InMemoryContext
 {
@@ -34,24 +34,18 @@ public class InMemoryContext
     public Usuario? ObtenerUsuarioPorId(int id)
     {
         lock (_lock)
-        {
             return _usuarios.FirstOrDefault(u => u.Id == id);
-        }
     }
 
     public Usuario? ObtenerUsuarioPorEmail(string email)
     {
         lock (_lock)
-        {
             return _usuarios.FirstOrDefault(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
     }
 
     public bool ExisteEmail(string email)
     {
         lock (_lock)
-        {
             return _usuarios.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
     }
 }

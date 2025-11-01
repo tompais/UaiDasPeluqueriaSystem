@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 namespace APP;
 
 /// <summary>
-/// Servicio de lógica de negocio para usuarios
+/// Servicio de lï¿½gica de negocio para usuarios
 /// </summary>
 public class UsuarioService(
   IUsuarioRepository usuarioRepository,
@@ -22,13 +22,13 @@ public class UsuarioService(
         var erroresValidacion = ValidarCrearUsuarioRequest(request);
         if (erroresValidacion.Count != 0)
         {
-            return ResultadoOperacion<Usuario>.Error("Error de validación", erroresValidacion);
+            return ResultadoOperacion<Usuario>.Error("Error de validaciï¿½n", erroresValidacion);
         }
 
         // Verificar que el email no exista
         if (_usuarioRepository.ExisteEmail(request.Email))
         {
-            return ResultadoOperacion<Usuario>.Error("El email ya está registrado");
+            return ResultadoOperacion<Usuario>.Error("El email ya estï¿½ registrado");
         }
 
         // Validar longitud de la clave (11 caracteres)
@@ -52,10 +52,7 @@ public class UsuarioService(
         return ResultadoOperacion<Usuario>.Exito(usuarioCreado, "Usuario creado exitosamente");
     }
 
-    public IEnumerable<Usuario> ObtenerTodos()
-    {
-        return _usuarioRepository.ObtenerTodos();
-    }
+    public IEnumerable<Usuario> ObtenerTodos() => _usuarioRepository.ObtenerTodos();
 
     private List<string> ValidarCrearUsuarioRequest(CrearUsuarioRequest request)
     {
@@ -92,7 +89,7 @@ public class UsuarioService(
         }
         else if (!EsEmailValido(request.Email))
         {
-            errores.Add("El formato del email no es válido");
+            errores.Add("El formato del email no es vï¿½lido");
         }
 
         // Validar Clave
@@ -101,13 +98,10 @@ public class UsuarioService(
             errores.Add("La clave es obligatoria");
         }
 
-        // Nota: Rol no requiere validación adicional ya que es un enum
+        // Nota: Rol no requiere validaciï¿½n adicional ya que es un enum
 
         return errores;
     }
 
-    public bool EsEmailValido(string email)
-    {
-        return new EmailAddressAttribute().IsValid(email);
-    }
+    public bool EsEmailValido(string email) => new EmailAddressAttribute().IsValid(email);
 }
