@@ -3,35 +3,26 @@ using ABS.Services;
 
 namespace APP
 {
-    public class appUsuario
+    public class AppUsuario(IUsuarioDbRepository repository, IEncriptacionService encriptacionService)
     {
-        private readonly IUsuarioDbRepository _repository;
-        private readonly IEncriptacionService _encriptacionService;
+        public List<DOM.DomUsuario> Traer() => repository.Traer();
 
-        public appUsuario(IUsuarioDbRepository repository, IEncriptacionService encriptacionService)
+        public DOM.DomUsuario Crear(string nombre, string apellido, string email, string clave, DOM.DomUsuario.RolUsuario rol)
         {
-            _repository = repository;
-            _encriptacionService = encriptacionService;
-        }
-
-        public List<DOM.domUsuario> Traer() => _repository.Traer();
-
-        public DOM.domUsuario Crear(string nombre, string apellido, string email, string clave, DOM.domUsuario.RolUsuario rol)
-        {
-            var usuario = new DOM.domUsuario
+            var usuario = new DOM.DomUsuario
             {
                 Nombre = nombre.Trim(),
                 Apellido = apellido.Trim(),
                 Email = email.Trim().ToLowerInvariant(),
-                Clave = _encriptacionService.Encriptar(clave),
+                Clave = encriptacionService.Encriptar(clave),
                 Rol = rol,
-                Estado = DOM.domUsuario.EstadoUsuario.Activo,
+                Estado = DOM.DomUsuario.EstadoUsuario.Activo,
                 DV = "" // Dígito verificador - por ahora vacío
             };
 
-            return _repository.Crear(usuario);
+            return repository.Crear(usuario);
         }
 
-        public bool ExisteEmail(string email) => _repository.ExisteEmail(email);
+        public bool ExisteEmail(string email) => repository.ExisteEmail(email);
     }
 }

@@ -15,7 +15,7 @@ public partial class FormPrincipal : Form
         FormUsuarios f = DependencyInjectionContainer.ObtenerServicio<FormUsuarios>();
         f.MdiParent = this;
         f.Show();
-        f.Left = (this.Left + this.Width - f.Width) / 2;
-        f.Top = (this.Top + this.Height - f.Height) / 2;
+        f.Left = (Left + Width - f.Width) / 2;
+        f.Top = (Top + Height - f.Height) / 2;
     }
 }

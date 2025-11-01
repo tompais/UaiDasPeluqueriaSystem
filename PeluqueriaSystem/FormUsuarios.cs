@@ -7,15 +7,15 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormUsuarios : Form
 {
-    private readonly appUsuario _appUsuario;
+    private readonly AppUsuario _appUsuario;
 
-    public FormUsuarios(appUsuario appUsuario)
+    public FormUsuarios(AppUsuario appUsuario)
     {
         InitializeComponent();
         _appUsuario = appUsuario;
     }
 
-    private void FrmUsuarios_Load(object sender, EventArgs e)
+    private void FrmUsuarios_Load(object? sender, EventArgs e)
     {
         try
         {
@@ -28,7 +28,7 @@ public partial class FormUsuarios : Form
         }
     }
 
-    private void btnNuevo_Click(object sender, EventArgs e)
+    private void BtnNuevo_Click(object sender, EventArgs e)
     {
         var formAlta = DependencyInjectionContainer.ObtenerServicio<FormAltaUsuario>();
 

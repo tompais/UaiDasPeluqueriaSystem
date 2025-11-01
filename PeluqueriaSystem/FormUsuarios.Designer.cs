@@ -123,7 +123,7 @@ colId.HeaderText = "ID";
      btnNuevo.TabIndex = 1;
     btnNuevo.Text = "Nuevo Usuario";
        btnNuevo.UseVisualStyleBackColor = true;
-   btnNuevo.Click += btnNuevo_Click;
+   btnNuevo.Click += BtnNuevo_Click;
   // 
    // btnRefrescar
       // 

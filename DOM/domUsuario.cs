@@ -1,15 +1,15 @@
 namespace DOM
 {
-    public class domUsuario
+    public class DomUsuario
     {
         public int ID { get; init; }
-        public string Apellido { get; set; }
-        public string Nombre { get; set; }
-        public string Email { get; set; }
+        public required string Apellido { get; set; }
+        public required string Nombre { get; set; }
+        public required string Email { get; set; }
         public RolUsuario Rol { get; set; }
         public EstadoUsuario Estado { get; set; }
-        public string Clave { get; set; }
-        public string DV { get; set; }
+        public required string Clave { get; set; }
+        public required string DV { get; set; }
         public DateTime Fecha_Agregar { get; init; } = DateTime.Now;
 
         /// <summary>

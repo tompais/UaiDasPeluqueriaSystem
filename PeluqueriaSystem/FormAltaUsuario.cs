@@ -8,15 +8,15 @@ namespace PeluqueriaSystem;
 /// </summary>
 public partial class FormAltaUsuario : Form
 {
-    private readonly appUsuario _appUsuario;
+    private readonly AppUsuario _appUsuario;
 
-    public FormAltaUsuario(appUsuario appUsuario)
+    public FormAltaUsuario(AppUsuario appUsuario)
     {
         InitializeComponent();
         _appUsuario = appUsuario;
 
         // Inicializar ComboBox de roles
-        cmbRol.DataSource = Enum.GetValues(typeof(domUsuario.RolUsuario));
+        cmbRol.DataSource = Enum.GetValues(typeof(DomUsuario.RolUsuario));
         cmbRol.SelectedIndex = 0; // Cliente por defecto
 
         // Suscribir eventos para validación en tiempo real
@@ -29,7 +29,7 @@ public partial class FormAltaUsuario : Form
         ValidarFormulario(null, EventArgs.Empty);
     }
 
-    private void ValidarFormulario(object sender, EventArgs e)
+    private void ValidarFormulario(object? sender, EventArgs e)
     {
         var errores = ObtenerErroresValidacion();
         btnGuardar.Enabled = errores.Count == 0;
@@ -81,7 +81,7 @@ public partial class FormAltaUsuario : Form
                 if (!_appUsuario.ExisteEmail(txtEmail.Text))
                 {
                     // Crear usuario
-                    var rol = (domUsuario.RolUsuario)(cmbRol.SelectedItem ?? domUsuario.RolUsuario.Cliente);
+                    var rol = (DomUsuario.RolUsuario)(cmbRol.SelectedItem ?? DomUsuario.RolUsuario.Cliente);
                     _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
 
                     MessageBox.Show("Usuario creado exitosamente", "Éxito",

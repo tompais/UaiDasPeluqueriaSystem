@@ -21,14 +21,14 @@ public static class DependencyInjectionContainer
         var services = new ServiceCollection();
 
         // Data Access Layer (SQL Server)
-        services.AddScoped<IDataAccess, dalSQLServer>();
+        services.AddScoped<IDataAccess, DalSQLServer>();
 
         // Repositorios (Base de datos)
-        services.AddScoped<IUsuarioDbRepository, repoUsuario>();
+        services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
 
         // Servicios de aplicación
         services.AddScoped<IEncriptacionService, EncriptacionService>();
-        services.AddScoped<appUsuario>();
+        services.AddScoped<AppUsuario>();
 
         // Formularios
         services.AddTransient<FormPrincipal>();

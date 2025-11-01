@@ -1,21 +1,21 @@
-using System.Data.SqlClient;
 using ABS.Context;
+using System.Data.SqlClient;
 
 namespace CONTEXT
 {
-    public class dalSQLServer : IDataAccess
+    public class DalSQLServer : IDataAccess
     {
-        private SqlConnection con;
+        private readonly SqlConnection con;
 
-        public dalSQLServer()
+        public DalSQLServer()
         {
             con = new SqlConnection();
         }
 
-        private string StringConexion() =>
+        private static string StringConexion() =>
             // Permite configurar la cadena de conexi�n mediante variable de entorno
             // Si no est� definida, usa el valor por defecto
-            Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING") 
+            Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING")
             ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True";
 
         public SqlConnection AbrirConexion()

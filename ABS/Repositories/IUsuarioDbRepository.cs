@@ -1,3 +1,6 @@
+using DOM;
+using System.Data.SqlClient;
+
 namespace ABS.Repositories;
 
 /// <summary>
@@ -5,7 +8,8 @@ namespace ABS.Repositories;
 /// </summary>
 public interface IUsuarioDbRepository
 {
-    List<DOM.domUsuario> Traer();
-    DOM.domUsuario Crear(DOM.domUsuario usuario);
+    List<DOM.DomUsuario> Traer();
+    DOM.DomUsuario Crear(DOM.DomUsuario usuario);
     bool ExisteEmail(string email);
+    List<DomUsuario> CompletarLista(SqlDataReader dr, List<DomUsuario> lista);
 }
