@@ -1,13 +1,13 @@
 -- =============================================
 -- Script Completo Standalone (Sin SQLCMD Mode)
--- Descripción: Todo en un solo archivo para ejecución directa
+-- Descripciï¿½n: Todo en un solo archivo para ejecuciï¿½n directa
 -- Uso: Ejecutar directamente en SSMS sin SQLCMD Mode
 -- =============================================
 
 PRINT '========================================';
-PRINT 'SISTEMA DE GESTIÓN PELUQUERÍA';
-PRINT 'Script de Creación de Base de Datos';
-PRINT 'Versión: Standalone (Sin SQLCMD)';
+PRINT 'SISTEMA DE GESTIï¿½N PELUQUERï¿½A';
+PRINT 'Script de Creaciï¿½n de Base de Datos';
+PRINT 'Versiï¿½n: Standalone (Sin SQLCMD)';
 PRINT '========================================';
 PRINT '';
 GO
@@ -53,7 +53,7 @@ PRINT 'Creando tabla Rol...';
 IF OBJECT_ID('[dbo].[Rol]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Rol];
-    PRINT '  ? Tabla Rol eliminada (ya existía)';
+    PRINT '  ? Tabla Rol eliminada (ya existï¿½a)';
 END
 GO
 
@@ -80,7 +80,7 @@ PRINT 'Creando tabla Estado...';
 IF OBJECT_ID('[dbo].[Estado]', 'U') IS NOT NULL
 BEGIN
  DROP TABLE [dbo].[Estado];
-    PRINT '  ? Tabla Estado eliminada (ya existía)';
+    PRINT '  ? Tabla Estado eliminada (ya existï¿½a)';
 END
 GO
 
@@ -107,7 +107,7 @@ PRINT 'Creando tabla Usuario...';
 IF OBJECT_ID('[dbo].[Usuario]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Usuario];
-    PRINT '  ? Tabla Usuario eliminada (ya existía)';
+    PRINT '  ? Tabla Usuario eliminada (ya existï¿½a)';
 END
 GO
 
@@ -118,20 +118,17 @@ CREATE TABLE [dbo].[Usuario] (
     [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
-    [Clave] VARCHAR(11) NULL,
+    [Clave] VARCHAR(64) NULL,
     [DV] VARCHAR(50) NULL,
-    [Usuario_Agregar] INT NOT NULL,
-    [Usuario_Modificar] INT NOT NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
-    [Fecha_Modificar] DATETIME NOT NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (
         [ID] ASC
     ) WITH (
-   PAD_INDEX = OFF,
+        PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,
-      IGNORE_DUP_KEY = OFF,
+        IGNORE_DUP_KEY = OFF,
         ALLOW_ROW_LOCKS = ON,
-  ALLOW_PAGE_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
     ) ON [PRIMARY]
 ) ON [PRIMARY];
@@ -152,7 +149,7 @@ PRINT 'Creando relaciones entre tablas...';
 IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Usuario_Rol')
 BEGIN
     ALTER TABLE [dbo].[Usuario] DROP CONSTRAINT FK_Usuario_Rol;
-    PRINT '  ? FK_Usuario_Rol eliminada (ya existía)';
+    PRINT '  ? FK_Usuario_Rol eliminada (ya existï¿½a)';
 END
 GO
 
@@ -161,13 +158,13 @@ ADD CONSTRAINT FK_Usuario_Rol FOREIGN KEY ([Rol])
 REFERENCES [dbo].[Rol]([ID]);
 GO
 
-PRINT '? Relación Usuario ? Rol creada';
+PRINT '? Relaciï¿½n Usuario ? Rol creada';
 GO
 
 IF EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Usuario_Estado')
 BEGIN
     ALTER TABLE [dbo].[Usuario] DROP CONSTRAINT FK_Usuario_Estado;
-    PRINT '  ? FK_Usuario_Estado eliminada (ya existía)';
+    PRINT '  ? FK_Usuario_Estado eliminada (ya existï¿½a)';
 END
 GO
 
@@ -176,7 +173,7 @@ ADD CONSTRAINT FK_Usuario_Estado FOREIGN KEY ([Estado])
 REFERENCES [dbo].[Estado]([ID]);
 GO
 
-PRINT '? Relación Usuario ? Estado creada';
+PRINT '? Relaciï¿½n Usuario ? Estado creada';
 PRINT '? Todas las relaciones creadas correctamente';
 PRINT '';
 PRINT '========================================';
@@ -302,8 +299,7 @@ DBCC CHECKIDENT ('[dbo].[Usuario]', RESEED, 0);
 GO
 
 INSERT INTO [dbo].[Usuario] (
-    [Apellido], [Nombre], [Email], [Rol], [Estado], [Clave], [DV],
-    [Usuario_Agregar], [Usuario_Modificar], [Fecha_Modificar]
+    [Apellido], [Nombre], [Email], [Rol], [Estado], [Clave], [DV]
 ) VALUES (
     'Lennon',
     'Jhon',
@@ -311,10 +307,7 @@ INSERT INTO [dbo].[Usuario] (
     1,
     1,
     '1234',
-    '43534h5jk43h5',
-    1,
-    1,
-    GETDATE()
+    '43534h5jk43h5'
 );
 GO
 
@@ -381,10 +374,10 @@ PRINT '';
 PRINT 'Estado de las tablas:';
 PRINT '  - Rol: 4 registros (Administrador, Supervisor, Peluquero, Cajero)';
 PRINT '  - Estado: 2 registros (Habilitado, Baja)';
-PRINT '  - Usuario: 0 registros (tabla vacía tras ejemplos)';
+PRINT '  - Usuario: 0 registros (tabla vacï¿½a tras ejemplos)';
 PRINT '';
 PRINT '========================================';
 PRINT '';
-PRINT '¡Base de datos lista para usar!';
+PRINT 'ï¿½Base de datos lista para usar!';
 PRINT '';
 GO
