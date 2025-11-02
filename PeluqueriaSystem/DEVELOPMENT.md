@@ -1,14 +1,14 @@
-# Guía de Desarrollo - Sistema de Peluquería
+# Guï¿½a de Desarrollo - Sistema de Peluquerï¿½a
 
-Esta guía contiene información técnica detallada sobre la arquitectura, implementación y casos de prueba del sistema.
+Esta guï¿½a contiene informaciï¿½n tï¿½cnica detallada sobre la arquitectura, implementaciï¿½n y casos de prueba del sistema.
 
 ---
 
 ## ?? Tabla de Contenidos
 
 1. [Arquitectura Detallada](#arquitectura-detallada)
-2. [Principios de Diseño](#principios-de-diseño)
-3. [Implementación por Capas](#implementación-por-capas)
+2. [Principios de Diseï¿½o](#principios-de-diseï¿½o)
+3. [Implementaciï¿½n por Capas](#implementaciï¿½n-por-capas)
 4. [Dependency Injection](#dependency-injection)
 5. [Flujo de Datos](#flujo-de-datos)
 6. [Validaciones](#validaciones)
@@ -26,45 +26,51 @@ Esta guía contiene información técnica detallada sobre la arquitectura, implemen
 ```
 ???????????????????????????????????????????????????????????????
 ?        UI (PeluqueriaSystem)     ?
-?  - frmPrincipal (MDI Container)        ?
-?  - frmUsuarios (Listado)           ?
-?  - frmAltaUsuario (Alta)       ?
+?  - FormPrincipal (MDI Container)        ?
+?  - FormUsuarios (Listado)           ?
+?  - FormAltaUsuario (Alta)       ?
 ?  - DependencyInjectionContainer  ?
 ???????????????????????????????????????????????????????????????
            ? Usa
    ?
 ???????????????????????????????????????????????????????????????
-?     APP (Lógica de Negocio)        ?
-?  - UsuarioService              ?
-?  - CrearUsuarioDto       ?
-?  - ResultadoOperacion<T>   ?
+?     APP (Lï¿½gica de Negocio)        ?
+?  - AppUsuario              ?
 ???????????????????????????????????????????????????????????????
      ? Usa
  ?????????????????????????????????
          ?              ?
 ??????????????????????????????????????????????????
 ?   REPO (Repositorio)  ?    ?   SERV (Servicios)     ?
-? - UsuarioRepository  ? ? - EncriptacionService  ?
+? - RepoUsuario  ? ? - EncriptacionService  ?
 ????????????????????????    ??????????????????????????
         ? Usa
    ?
 ???????????????????????????
-? CONTEXT (Datos Memoria) ?
-?  - InMemoryContext   ?
+? CONTEXT (Acceso Datos) ?
+?  - DalSQLServer   ?
+???????????????????????????
+           ? Usa
+      ?
+???????????????????????????
+?  SQL Server Database ?
+?  - PeluSystem      ?
+?  - Tabla Usuario   ?
 ???????????????????????????
            ? Usa
       ?
 ???????????????????????????
 ?    DOM (Dominio)        ?
-?  - Usuario        ?
-?  - EstadoUsuario        ?
+?  - DomUsuario        ?
+?  - RolUsuario (enum)    ?
+?  - EstadoUsuario (enum) ?
 ???????????????????????????
         ?
       ? Todas las capas dependen de
 ???????????????????????????
 ?  ABS (Abstracciones) ?
-?  - IUsuarioRepository   ?
-?  - IUsuarioService      ?
+?  - IUsuarioDbRepository   ?
+?  - IDataAccess      ?
 ?  - IEncriptacionService ?
 ???????????????????????????
 ```
@@ -73,12 +79,12 @@ Esta guía contiene información técnica detallada sobre la arquitectura, implemen
 
 | Proyecto | Tipo | Responsabilidad | Dependencias |
 |----------|------|----------------|--------------|
-| **DOM** | Class Library | Entidades del dominio | Ninguna |
+| **DOM** | Class Library | Entidades del dominio (DomUsuario, enums) | Ninguna |
 | **ABS** | Class Library | Interfaces y abstracciones | DOM |
-| **SERV** | Class Library | Servicios auxiliares (encriptación) | ABS |
-| **CONTEXT** | Class Library | Contexto en memoria | DOM |
-| **REPO** | Class Library | Repositorio CRUD | ABS, CONTEXT, DOM |
-| **APP** | Class Library | Lógica de negocio | ABS, DOM |
+| **SERV** | Class Library | Servicios auxiliares (encriptaciï¿½n) | ABS |
+| **CONTEXT** | Class Library | Acceso a datos SQL Server (DalSQLServer) | ABS |
+| **REPO** | Class Library | Repositorio con operaciones de BD (RepoUsuario) | ABS, CONTEXT, DOM |
+| **APP** | Class Library | Lï¿½gica de negocio (AppUsuario) | ABS, DOM, REPO, SERV |
 | **PeluqueriaSystem** | WinForms App | Interfaz de usuario | Todos |
 
 ### Flujo de Dependencias
@@ -87,44 +93,44 @@ Esta guía contiene información técnica detallada sobre la arquitectura, implemen
 Regla fundamental: Las dependencias apuntan hacia adentro
 
 Externo ? Interno:
-UI ? APP ? REPO/SERV ? CONTEXT/DOM
+UI ? APP ? REPO/SERV ? CONTEXT ? SQL Server ? DOM
 
 Todos dependen de ABS (abstracciones)
 ```
 
 ---
 
-## ?? Principios de Diseño
+## ?? Principios de Diseï¿½o
 
-### SOLID - Análisis Detallado
+### SOLID - Anï¿½lisis Detallado
 
 #### Single Responsibility Principle (SRP)
 
-**? Cada clase tiene una única razón para cambiar**
+**? Cada clase tiene una ï¿½nica razï¿½n para cambiar**
 
 - `Usuario`: Solo representa la entidad del dominio
-  - Cambiaría si: Los atributos del usuario cambian
+  - Cambiarï¿½a si: Los atributos del usuario cambian
   
-- `UsuarioService`: Solo contiene lógica de negocio
-  - Cambiaría si: Las reglas de negocio cambian
+- `UsuarioService`: Solo contiene lï¿½gica de negocio
+  - Cambiarï¿½a si: Las reglas de negocio cambian
   
 - `UsuarioRepository`: Solo maneja persistencia
-  - Cambiaría si: La forma de almacenar datos cambia
+  - Cambiarï¿½a si: La forma de almacenar datos cambia
   
 - `EncriptacionService`: Solo encripta datos
-  - Cambiaría si: El algoritmo de encriptación cambia
+  - Cambiarï¿½a si: El algoritmo de encriptaciï¿½n cambia
 
 #### Open/Closed Principle (OCP)
 
-**? Abierto para extensión, cerrado para modificación**
+**? Abierto para extensiï¿½n, cerrado para modificaciï¿½n**
 
 ```csharp
-// Ejemplo: Agregar nueva implementación sin modificar código existente
+// Ejemplo: Agregar nueva implementaciï¿½n sin modificar cï¿½digo existente
 
 // Sin modificar IUsuarioRepository:
 public class SqlUsuarioRepository : IUsuarioRepository
 {
-    // Nueva implementación con SQL Server
+    // Nueva implementaciï¿½n con SQL Server
 }
 
 // Solo cambiar el registro en DI:
@@ -136,19 +142,19 @@ services.AddScoped<IUsuarioRepository, SqlUsuarioRepository>();
 **? Las implementaciones son sustituibles por sus abstracciones**
 
 ```csharp
-// Cualquier IUsuarioRepository puede usarse sin romper el código
+// Cualquier IUsuarioRepository puede usarse sin romper el cï¿½digo
 IUsuarioRepository repo = new UsuarioRepository(context);
 // O
 IUsuarioRepository repo = new SqlUsuarioRepository(connectionString);
 // O
 IUsuarioRepository repo = new MongoUsuarioRepository(config);
 
-// El código que usa IUsuarioRepository funciona con cualquiera
+// El cï¿½digo que usa IUsuarioRepository funciona con cualquiera
 ```
 
 #### Interface Segregation Principle (ISP)
 
-**? Interfaces específicas y cohesivas**
+**? Interfaces especï¿½ficas y cohesivas**
 
 ```csharp
 // ? MALO - Interfaz grande
@@ -159,27 +165,27 @@ public interface IUsuarioOperations
     Task EliminarAsync(int id);
     string EncriptarClave(string clave);
     bool ValidarEmail(string email);
-    // ... más métodos
+    // ... mï¿½s mï¿½todos
 }
 
 // ? BUENO - Interfaces segregadas
 public interface IUsuarioRepository { /* Solo operaciones CRUD */ }
-public interface IEncriptacionService { /* Solo encriptación */ }
+public interface IEncriptacionService { /* Solo encriptaciï¿½n */ }
 public interface IValidacionService { /* Solo validaciones */ }
 ```
 
 #### Dependency Inversion Principle (DIP)
 
-**? Módulos de alto nivel no dependen de los de bajo nivel**
+**? Mï¿½dulos de alto nivel no dependen de los de bajo nivel**
 
 ```csharp
 // APP (alto nivel) no depende de REPO (bajo nivel)
-// Ambos dependen de IUsuarioRepository (abstracción)
+// Ambos dependen de IUsuarioRepository (abstracciï¿½n)
 
 // APP
 public class UsuarioService
 {
-    private readonly IUsuarioRepository _repository; // ? Abstracción
+    private readonly IUsuarioRepository _repository; // ? Abstracciï¿½n
     
     public UsuarioService(IUsuarioRepository repository)
     {
@@ -188,7 +194,7 @@ public class UsuarioService
 }
 
 // REPO
-public class UsuarioRepository : IUsuarioRepository // ? Implementa abstracción
+public class UsuarioRepository : IUsuarioRepository // ? Implementa abstracciï¿½n
 {
     // ...
 }
@@ -198,24 +204,27 @@ public class UsuarioRepository : IUsuarioRepository // ? Implementa abstracción
 
 #### Regla de Dependencia
 
-> **"El código fuente debe depender solo de cosas que estén en el mismo nivel o más adentro, nunca hacia afuera"**
+> **"El cï¿½digo fuente debe depender solo de cosas que estï¿½n en el mismo nivel o mï¿½s adentro, nunca hacia afuera"**
 
 **? Implementado correctamente:**
 - DOM no depende de nadie
 - ABS solo depende de DOM
-- APP depende de ABS y DOM (nunca de REPO o UI)
-- UI puede depender de todos (está en el círculo externo)
+- CONTEXT implementa acceso a SQL Server via IDataAccess
+- REPO usa CONTEXT para operaciones de base de datos
+- APP depende de ABS y DOM (nunca conoce detalles de persistencia)
+- UI puede depender de todos (estï¿½ en el cï¿½rculo externo)
 
 #### Independencia de Frameworks
 
 ```csharp
-// ? APP no sabe nada de Windows Forms
-// Podría usarse en:
-// - Aplicación WPF
+// ? APP no sabe nada de Windows Forms ni de SQL Server
+// Podrï¿½a usarse en:
+// - Aplicaciï¿½n WPF
 // - API REST
-// - Aplicación de consola
+// - Aplicaciï¿½n de consola
 // - Blazor
 // Sin modificar APP
+// El acceso a datos se puede cambiar (SQL ? MongoDB ? API) sin afectar APP
 ```
 
 ### Clean Code
@@ -230,10 +239,10 @@ public async Task<ResultadoOperacion<Usuario>> CrearUsuarioAsync(CrearUsuarioDto
 public async Task<Result<User>> Create(CreateDto d)
 ```
 
-#### Métodos Pequeños
+#### Mï¿½todos Pequeï¿½os
 
 ```csharp
-// ? Cada método hace una sola cosa
+// ? Cada mï¿½todo hace una sola cosa
 private List<string> ValidarCrearUsuarioDto(CrearUsuarioDto dto)
 {
     var errores = new List<string>();
@@ -253,10 +262,10 @@ private List<string> ValidarCrearUsuarioDto(CrearUsuarioDto dto)
 **? Validaciones centralizadas**
 
 ```csharp
-// Una única fuente de verdad para validaciones
+// Una ï¿½nica fuente de verdad para validaciones
 private List<string> ValidarCrearUsuarioDto(CrearUsuarioDto dto)
 {
- // Todas las validaciones aquí
+ // Todas las validaciones aquï¿½
 }
 
 // No hay validaciones duplicadas en:
@@ -270,16 +279,16 @@ private List<string> ValidarCrearUsuarioDto(CrearUsuarioDto dto)
 
 **? Solo lo necesario implementado**
 
-- ? No hay sistema de permisos complicado (no se pidió)
-- ? No hay auditoría avanzada (no se pidió)
-- ? No hay búsqueda full-text (no se pidió)
-- ? Solo alta de usuario (lo que se pidió)
+- ? No hay sistema de permisos complicado (no se pidiï¿½)
+- ? No hay auditorï¿½a avanzada (no se pidiï¿½)
+- ? No hay bï¿½squeda full-text (no se pidiï¿½)
+- ? Solo alta de usuario (lo que se pidiï¿½)
 
 ---
 
 ## ?? Dependency Injection
 
-### Configuración del Contenedor
+### Configuraciï¿½n del Contenedor
 
 ```csharp
 public static class DependencyInjectionContainer
@@ -288,18 +297,16 @@ public static class DependencyInjectionContainer
     {
         var services = new ServiceCollection();
 
-        // Singleton - Una instancia durante toda la aplicación
-     services.AddSingleton<InMemoryContext>();
-
-      // Scoped - Nueva instancia por solicitud/scope
-        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-  services.AddScoped<IEncriptacionService, EncriptacionService>();
-services.AddScoped<IUsuarioService, UsuarioService>();
+        // Scoped - Nueva instancia por solicitud/scope
+        services.AddScoped<IDataAccess, DalSQLServer>();
+        services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
+        services.AddScoped<IEncriptacionService, EncriptacionService>();
+        services.AddScoped<AppUsuario>();
 
         // Transient - Nueva instancia cada vez que se solicita
-        services.AddTransient<frmPrincipal>();
-     services.AddTransient<frmUsuarios>();
-        services.AddTransient<frmAltaUsuario>();
+        services.AddTransient<FormPrincipal>();
+        services.AddTransient<FormUsuarios>();
+        services.AddTransient<FormAltaUsuario>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
@@ -308,13 +315,12 @@ services.AddScoped<IUsuarioService, UsuarioService>();
 
 ### Lifetimes Explicados
 
-| Lifetime | Cuándo usar | Ejemplo en el proyecto |
+| Lifetime | Cuï¿½ndo usar | Ejemplo en el proyecto |
 |----------|-------------|----------------------|
-| **Singleton** | Estado compartido durante toda la app | `InMemoryContext` - Mantiene usuarios en memoria |
-| **Scoped** | Nueva instancia por operación | Servicios sin estado: `UsuarioService`, `UsuarioRepository` |
-| **Transient** | Muy ligeros, sin estado | Formularios Windows Forms |
+| **Scoped** | Nueva instancia por operaciï¿½n | Servicios de BD: `DalSQLServer`, `RepoUsuario`, `AppUsuario` |
+| **Transient** | Muy ligeros, sin estado | Formularios Windows Forms: `FormUsuarios`, `FormAltaUsuario` |
 
-### Optimización con C# 11 y Nullable Reference Types
+### Optimizaciï¿½n con C# 11 y Nullable Reference Types
 
 **? Antes (redundante):**
 ```csharp
@@ -332,14 +338,14 @@ public UsuarioService(IUsuarioRepository repository)
 }
 ```
 
-**¿Por qué es seguro?**
+**ï¿½Por quï¿½ es seguro?**
 1. **NRT (Nullable Reference Types)**: El compilador advierte si pasas null
-2. **DI Container**: `GetRequiredService<T>()` lanza excepción si no está registrado
-3. **YAGNI**: No agregamos validaciones que nunca se ejecutarán
+2. **DI Container**: `GetRequiredService<T>()` lanza excepciï¿½n si no estï¿½ registrado
+3. **YAGNI**: No agregamos validaciones que nunca se ejecutarï¿½n
 
-**Validaciones que SÍ mantenemos:**
+**Validaciones que Sï¿½ mantenemos:**
 ```csharp
-// ? En métodos públicos de API (defensive programming)
+// ? En mï¿½todos pï¿½blicos de API (defensive programming)
 public Task<bool> ExisteEmailAsync(string email)
 {
   ArgumentException.ThrowIfNullOrWhiteSpace(email);
@@ -402,7 +408,7 @@ Usuario           frmAltaUsuario       UsuarioService       UsuarioRepositoryInM
   ?  ? ResultadoExitoso   ? ?                  ?
   ?          ?<????????????????????            ?        ?
   ?        ?         ?              ??
-  ? MessageBox("Éxito")     ?      ?                ?   ?
+  ? MessageBox("ï¿½xito")     ?      ?                ?   ?
   ?<?????????????????????????      ?           ?        ?
   ?           ?     ?       ?     ?
 ```
@@ -420,7 +426,7 @@ Usuario           frmAltaUsuario       UsuarioService       UsuarioRepositoryInM
    - Se valida el DTO (nombre, apellido, email, clave, rol)
    - Si hay errores, retorna `ResultadoOperacion<Usuario>.Error()`
 
-4. **Se verifica email único**
+4. **Se verifica email ï¿½nico**
    - Llama a `IUsuarioRepository.ExisteEmailAsync()`
    - Si existe, retorna error
 
@@ -440,7 +446,7 @@ Usuario           frmAltaUsuario       UsuarioService       UsuarioRepositoryInM
 8. **Se guarda en repositorio**
    - Llama a `IUsuarioRepository.CrearAsync()`
    - El repositorio llama a `InMemoryContext.AgregarUsuario()`
-   - El contexto asigna ID automáticamente
+   - El contexto asigna ID automï¿½ticamente
 
 9. **Se retorna resultado exitoso**
    - `ResultadoOperacion<Usuario>.Exito()`
@@ -455,9 +461,9 @@ Usuario           frmAltaUsuario       UsuarioService       UsuarioRepositoryInM
 
 ## ? Validaciones
 
-### Niveles de Validación
+### Niveles de Validaciï¿½n
 
-#### 1. UI (Prevención)
+#### 1. UI (Prevenciï¿½n)
 
 ```csharp
 // frmAltaUsuario.Designer.cs
@@ -471,7 +477,7 @@ numRol.Minimum = 0;
 numRol.Maximum = 9;
 ```
 
-**Objetivo:** Prevenir entrada inválida antes de que llegue al servicio
+**Objetivo:** Prevenir entrada invï¿½lida antes de que llegue al servicio
 
 #### 2. Servicio (Reglas de Negocio)
 
@@ -499,7 +505,7 @@ private List<string> ValidarCrearUsuarioDto(CrearUsuarioDto dto)
     else if (dto.Email.Length > 180)
         errores.Add("El email no puede superar los 180 caracteres");
     else if (!EsEmailValido(dto.Email))
-        errores.Add("El formato del email no es válido");
+        errores.Add("El formato del email no es vï¿½lido");
 
   // Clave
     if (string.IsNullOrWhiteSpace(dto.Clave))
@@ -541,7 +547,7 @@ public Task<bool> ExisteEmailAsync(string email)
 }
 ```
 
-**Objetivo:** Defensive programming en fronteras de APIs públicas
+**Objetivo:** Defensive programming en fronteras de APIs pï¿½blicas
 
 ### Matriz de Validaciones
 
@@ -552,9 +558,9 @@ public Task<bool> ExisteEmailAsync(string email)
 | Apellido obligatorio | - | ? | - | "El apellido es obligatorio" |
 | Apellido ? 80 | ? | ? | - | "El apellido no puede superar los 80 caracteres" |
 | Email obligatorio | - | ? | - | "El email es obligatorio" |
-| Email formato válido | - | ? | - | "El formato del email no es válido" |
+| Email formato vï¿½lido | - | ? | - | "El formato del email no es vï¿½lido" |
 | Email ? 180 | ? | ? | - | "El email no puede superar los 180 caracteres" |
-| Email único | - | ? | ? | "El email ya está registrado" |
+| Email ï¿½nico | - | ? | ? | "El email ya estï¿½ registrado" |
 | Clave obligatoria | - | ? | - | "La clave es obligatoria" |
 | Clave = 11 caracteres | ? | ? | - | "La clave debe tener exactamente 11 caracteres" |
 | Rol 0-9 | ? | ? | - | "El rol debe estar entre 0 y 9" |
@@ -563,7 +569,7 @@ public Task<bool> ExisteEmailAsync(string email)
 
 ## ?? Seguridad
 
-### Encriptación de Claves
+### Encriptaciï¿½n de Claves
 
 **Algoritmo:** SHA256 (Secure Hash Algorithm 256-bit)
 
@@ -582,7 +588,7 @@ public class EncriptacionService : IEncriptacionService
 }
 ```
 
-**Características:**
+**Caracterï¿½sticas:**
 - ? Hash unidireccional (no reversible)
 - ? 256 bits de longitud
 - ? Determinista (misma entrada = mismo hash)
@@ -595,47 +601,61 @@ Entrada: "MiClave1234"
 Salida:  "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9="
 ```
 
-### Thread Safety
+### Integraciï¿½n con SQL Server
 
-**Problema:** Múltiples threads accediendo al contexto simultáneamente
-
-**Solución:** Lock en todas las operaciones
+**Arquitectura de Persistencia**
 
 ```csharp
-public class InMemoryContext
+// CONTEXT/DalSQLServer.cs - Manejo de conexiï¿½n
+public class DalSQLServer : IDataAccess
 {
-    private readonly List<Usuario> _usuarios = new();
-    private int _siguienteId = 1;
-    private readonly object _lock = new();
-
-    public void AgregarUsuario(Usuario usuario)
+    private readonly SqlConnection con;
+    
+    public SqlConnection AbrirConexion()
     {
-   lock (_lock)  // ? Protección contra race conditions
-        {
-            usuario.Id = _siguienteId++;
-            _usuarios.Add(usuario);
-        }
+        con.ConnectionString = StringConexion();
+        con.Open();
+        return con;
     }
+    
+    public void CerrarConexion() => con.Close();
+    
+    public SqlDataReader EjecutarSQL(SqlCommand cmd) => cmd.ExecuteReader();
+}
 
-    public Usuario? ObtenerUsuarioPorEmail(string email)
+// REPO/RepoUsuario.cs - Operaciones de base de datos
+public class RepoUsuario : IUsuarioDbRepository
+{
+    private readonly IDataAccess _dataAccess;
+    
+    public List<DomUsuario> Traer()
     {
-        lock (_lock)  // ? Protección en lectura también
+        try
         {
-         return _usuarios.FirstOrDefault(u => 
-         u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            using SqlCommand cmd = new();
+            cmd.CommandText = "SELECT * FROM Usuario";
+            cmd.Connection = _dataAccess.AbrirConexion();
+            
+            using SqlDataReader dr = _dataAccess.EjecutarSQL(cmd);
+            return CompletarLista(dr, new List<DomUsuario>());
+        }
+        finally
+        {
+            _dataAccess.CerrarConexion();  // ? Siempre cierra la conexiï¿½n
         }
     }
 }
 ```
 
-**Garantías:**
-- ? Un solo thread a la vez en sección crítica
-- ? IDs únicos garantizados
-- ? Sin race conditions
+**Caracterï¿½sticas:**
+- ? Try-finally garantiza cierre de conexiï¿½n
+- ? Using statements para recursos desechables
+- ? IDs gestionados por SQL Server (IDENTITY)
+- ? Integridad referencial con Foreign Keys
 
-### Nota para Producción
+### Nota para Producciï¿½n
 
-?? **Para sistemas de producción, se recomienda:**
+?? **Para sistemas de producciï¿½n, se recomienda:**
 
 ```csharp
 // Usar BCrypt o Argon2 en lugar de SHA256
@@ -643,7 +663,7 @@ using BC = BCrypt.Net.BCrypt;
 
 public string EncriptarProduccion(string textoPlano)
 {
-    // BCrypt genera salt automáticamente
+    // BCrypt genera salt automï¿½ticamente
     return BC.HashPassword(textoPlano, BC.GenerateSalt(12));
 }
 
@@ -659,12 +679,12 @@ public bool VerificarProduccion(string textoPlano, string hash)
 
 ### Casos de Prueba Positivos (? Deben Funcionar)
 
-#### CP01: Crear Usuario Válido Básico
+#### CP01: Crear Usuario Vï¿½lido Bï¿½sico
 
 **Datos de entrada:**
 ```
 Nombre: Juan
-Apellido: Pérez
+Apellido: Pï¿½rez
 Email: juan.perez@ejemplo.com
 Clave: Password123 (11 caracteres)
 Rol: 1
@@ -696,7 +716,7 @@ Rol: 5
 
 ---
 
-#### CP03: Crear Múltiples Usuarios
+#### CP03: Crear Mï¿½ltiples Usuarios
 
 **Procedimiento:**
 1. Crear usuario1@test.com
@@ -705,12 +725,12 @@ Rol: 5
 
 **Resultado esperado:**
 - ? 3 usuarios creados
-- ? IDs únicos: 1, 2, 3
+- ? IDs ï¿½nicos: 1, 2, 3
 - ? Todos en la lista
 
 ---
 
-#### CP04: Emails con Formatos Válidos
+#### CP04: Emails con Formatos Vï¿½lidos
 
 **Probar estos emails (uno por uno):**
 ```
@@ -733,7 +753,7 @@ Rol: 5
 Crear 10 usuarios con roles del 0 al 9
 
 **Resultado esperado:**
-- ? Todos los roles son válidos
+- ? Todos los roles son vï¿½lidos
 - ? 10 usuarios creados
 
 ---
@@ -743,23 +763,23 @@ Crear 10 usuarios con roles del 0 al 9
 #### CN01: Email Duplicado
 
 **Procedimiento:**
-1. Crear usuario con email: duplicado@test.com ? ? Éxito
+1. Crear usuario con email: duplicado@test.com ? ? ï¿½xito
 2. Intentar crear otro con email: duplicado@test.com ? ? Debe fallar
 
 **Resultado esperado:**
 ```
-? Error: "El email ya está registrado"
+? Error: "El email ya estï¿½ registrado"
 ? No se crea el segundo usuario
 ```
 
 ---
 
-#### CN02: Campos Vacíos
+#### CN02: Campos Vacï¿½os
 
 **CN02.A - Sin Nombre:**
 ```
-Nombre: [vacío]
-Apellido: González
+Nombre: [vacï¿½o]
+Apellido: Gonzï¿½lez
 Email: test@test.com
 Clave: 12345678901
 Rol: 1
@@ -769,7 +789,7 @@ Rol: 1
 **CN02.B - Sin Apellido:**
 ```
 Nombre: Juan
-Apellido: [vacío]
+Apellido: [vacï¿½o]
 Email: test@test.com
 Clave: 12345678901
 Rol: 1
@@ -779,8 +799,8 @@ Rol: 1
 **CN02.C - Sin Email:**
 ```
 Nombre: Juan
-Apellido: González
-Email: [vacío]
+Apellido: Gonzï¿½lez
+Email: [vacï¿½o]
 Clave: 12345678901
 Rol: 1
 ```
@@ -789,16 +809,16 @@ Rol: 1
 **CN02.D - Sin Clave:**
 ```
 Nombre: Juan
-Apellido: González
+Apellido: Gonzï¿½lez
 Email: test@test.com
-Clave: [vacío]
+Clave: [vacï¿½o]
 Rol: 1
 ```
 **Error esperado:** `"La clave es obligatoria"`
 
 ---
 
-#### CN03: Email con Formato Inválido
+#### CN03: Email con Formato Invï¿½lido
 
 **Probar estos emails (deben fallar):**
 ```
@@ -812,7 +832,7 @@ Rol: 1
 ? usuario@dominio
 ```
 
-**Error esperado:** `"El formato del email no es válido"`
+**Error esperado:** `"El formato del email no es vï¿½lido"`
 
 ---
 
@@ -830,7 +850,7 @@ Clave: 123456789012
 ```
 **Error esperado:** `"La clave debe tener exactamente 11 caracteres"`
 
-**CN04.C - Clave con 1 carácter:**
+**CN04.C - Clave con 1 carï¿½cter:**
 ```
 Clave: 1
 ```
@@ -838,46 +858,46 @@ Clave: 1
 
 **CN04.D - Clave con 0 caracteres:**
 ```
-Clave: [vacío]
+Clave: [vacï¿½o]
 ```
 **Error esperado:** `"La clave es obligatoria"`
 
 ---
 
-#### CN05: Nombres/Apellidos Excediendo Límites
+#### CN05: Nombres/Apellidos Excediendo Lï¿½mites
 
-**Nota:** El TextBox con MaxLength previene esto, pero el servicio también valida
+**Nota:** El TextBox con MaxLength previene esto, pero el servicio tambiï¿½n valida
 
 **CN05.A - Nombre > 50 caracteres (51):**
-Si de alguna forma se envía un nombre de 51+ caracteres
+Si de alguna forma se envï¿½a un nombre de 51+ caracteres
 
 **Error esperado:** `"El nombre no puede superar los 50 caracteres"`
 
 **CN05.B - Apellido > 80 caracteres (81):**
-Si de alguna forma se envía un apellido de 81+ caracteres
+Si de alguna forma se envï¿½a un apellido de 81+ caracteres
 
 **Error esperado:** `"El apellido no puede superar los 80 caracteres"`
 
 ---
 
-### Casos de Prueba de Integración
+### Casos de Prueba de Integraciï¿½n
 
 #### CI01: Flujo Completo de Alta
 
 **Procedimiento:**
-1. Iniciar aplicación
+1. Iniciar aplicaciï¿½n
 2. Verificar que formulario principal se abre maximizado
-3. Menú: Administración > Usuarios
-4. Verificar que lista está vacía
+3. Menï¿½: Administraciï¿½n > Usuarios
+4. Verificar que lista estï¿½ vacï¿½a
 5. Clic en "Nuevo Usuario"
-6. Completar datos válidos
+6. Completar datos vï¿½lidos
 7. Guardar
-8. Verificar mensaje de éxito
+8. Verificar mensaje de ï¿½xito
 9. Verificar que usuario aparece en lista con ID=1
 10. Crear segundo usuario
 11. Verificar que aparece con ID=2
 12. Refrescar lista
-13. Verificar que ambos siguen ahí
+13. Verificar que ambos siguen ahï¿½
 
 **Resultado esperado:**
 - ? Todo el flujo funciona sin errores
@@ -885,11 +905,11 @@ Si de alguna forma se envía un apellido de 81+ caracteres
 
 ---
 
-#### CI02: Prevención de Ventanas Duplicadas
+#### CI02: Prevenciï¿½n de Ventanas Duplicadas
 
 **Procedimiento:**
-1. Menú: Administración > Usuarios (abre ventana A)
-2. Intentar abrir de nuevo: Administración > Usuarios
+1. Menï¿½: Administraciï¿½n > Usuarios (abre ventana A)
+2. Intentar abrir de nuevo: Administraciï¿½n > Usuarios
 
 **Resultado esperado:**
 - ? No se abre segunda ventana
@@ -897,7 +917,7 @@ Si de alguna forma se envía un apellido de 81+ caracteres
 
 ---
 
-#### CI03: Cancelar Creación
+#### CI03: Cancelar Creaciï¿½n
 
 **Procedimiento:**
 1. Clic en "Nuevo Usuario"
@@ -911,7 +931,7 @@ Si de alguna forma se envía un apellido de 81+ caracteres
 
 ---
 
-#### CI04: Verificación de Encriptación
+#### CI04: Verificaciï¿½n de Encriptaciï¿½n
 
 **Procedimiento:**
 1. Crear usuario con clave: "MiClave1234"
@@ -927,32 +947,32 @@ Si de alguna forma se envía un apellido de 81+ caracteres
 
 ### Matriz de Casos de Prueba
 
-| ID | Descripción | Tipo | Prioridad | Estado |
+| ID | Descripciï¿½n | Tipo | Prioridad | Estado |
 |----|-------------|------|-----------|--------|
-| CP01 | Usuario válido básico | Positivo | Alta | ? |
+| CP01 | Usuario vï¿½lido bï¿½sico | Positivo | Alta | ? |
 | CP02 | Nombres largos | Positivo | Media | ? |
-| CP03 | Múltiples usuarios | Positivo | Alta | ? |
+| CP03 | Mï¿½ltiples usuarios | Positivo | Alta | ? |
 | CP04 | Formatos de email | Positivo | Media | ? |
 | CP05 | Todos los roles | Positivo | Baja | ? |
 | CN01 | Email duplicado | Negativo | Alta | ? |
-| CN02 | Campos vacíos | Negativo | Alta | ? |
-| CN03 | Email inválido | Negativo | Alta | ? |
+| CN02 | Campos vacï¿½os | Negativo | Alta | ? |
+| CN03 | Email invï¿½lido | Negativo | Alta | ? |
 | CN04 | Clave longitud incorrecta | Negativo | Alta | ? |
-| CN05 | Exceder límites | Negativo | Media | ? |
-| CI01 | Flujo completo | Integración | Alta | ? |
-| CI02 | Ventanas duplicadas | Integración | Media | ? |
-| CI03 | Cancelar operación | Integración | Media | ? |
-| CI04 | Encriptación | Integración | Alta | ? |
+| CN05 | Exceder lï¿½mites | Negativo | Media | ? |
+| CI01 | Flujo completo | Integraciï¿½n | Alta | ? |
+| CI02 | Ventanas duplicadas | Integraciï¿½n | Media | ? |
+| CI03 | Cancelar operaciï¿½n | Integraciï¿½n | Media | ? |
+| CI04 | Encriptaciï¿½n | Integraciï¿½n | Alta | ? |
 
 ---
 
 ## ?? Escalabilidad
 
-### Cómo Extender el Sistema
+### Cï¿½mo Extender el Sistema
 
 #### 1. Agregar Base de Datos Real
 
-**Paso 1:** Crear nueva implementación del repositorio
+**Paso 1:** Crear nueva implementaciï¿½n del repositorio
 
 ```csharp
 // REPO/SqlUsuarioRepository.cs
@@ -979,7 +999,7 @@ public class SqlUsuarioRepository : IUsuarioRepository
         return usuario;
     }
 
-    // ... otros métodos
+    // ... otros mï¿½todos
 }
 ```
 
@@ -990,18 +1010,18 @@ public class SqlUsuarioRepository : IUsuarioRepository
 services.AddSingleton<InMemoryContext>();
 services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
-// Después
+// Despuï¿½s
 services.AddScoped<IUsuarioRepository>(sp => 
     new SqlUsuarioRepository("Server=...;Database=..."));
 ```
 
-**¡Listo!** No se modifica ninguna otra capa.
+**ï¿½Listo!** No se modifica ninguna otra capa.
 
 ---
 
-#### 2. Agregar Modificación de Usuario
+#### 2. Agregar Modificaciï¿½n de Usuario
 
-**Paso 1:** Agregar método a interfaz
+**Paso 1:** Agregar mï¿½todo a interfaz
 
 ```csharp
 // ABS/Application/IUsuarioService.cs
@@ -1063,7 +1083,7 @@ var mockRepo = new Mock<IUsuarioRepository>();
   var dto = new CrearUsuarioDto
     {
         Nombre = "Juan",
-        Apellido = "Pérez",
+        Apellido = "Pï¿½rez",
         Email = "juan@test.com",
  Clave = "12345678901",
         Rol = 1,
@@ -1082,22 +1102,22 @@ Assert.Equal("Usuario creado exitosamente", resultado.Mensaje);
 
 ---
 
-### Patrón para Nuevas Entidades
+### Patrï¿½n para Nuevas Entidades
 
-**Ejemplo: Agregar gestión de Citas**
+**Ejemplo: Agregar gestiï¿½n de Citas**
 
 ```
 1. DOM/Cita.cs (entidad)
 2. ABS/Repositories/ICitaRepository.cs (interfaz)
 3. ABS/Application/ICitaService.cs (interfaz servicio)
-4. REPO/CitaRepository.cs (implementación repositorio)
-5. APP/CitaService.cs (implementación servicio)
+4. REPO/CitaRepository.cs (implementaciï¿½n repositorio)
+5. APP/CitaService.cs (implementaciï¿½n servicio)
 6. PeluqueriaSystem/frmCitas.cs (UI listado)
 7. PeluqueriaSystem/frmAltaCita.cs (UI alta)
 8. Registrar en DI
 ```
 
-**Seguir el mismo patrón de Usuario ? Garantiza consistencia**
+**Seguir el mismo patrï¿½n de Usuario ? Garantiza consistencia**
 
 ---
 
@@ -1105,17 +1125,17 @@ Assert.Equal("Usuario creado exitosamente", resultado.Mensaje);
 
 ### Antes de Entregar/Commitear
 
-#### Compilación
+#### Compilaciï¿½n
 - [ ] `dotnet build` sin errores
 - [ ] `dotnet build` sin warnings
 - [ ] Todas las referencias de proyecto correctas
 
-#### Código
-- [ ] Sin código comentado
-- [ ] Sin TODOs pendientes críticos
-- [ ] Sin console.WriteLine() de depuración
+#### Cï¿½digo
+- [ ] Sin cï¿½digo comentado
+- [ ] Sin TODOs pendientes crï¿½ticos
+- [ ] Sin console.WriteLine() de depuraciï¿½n
 - [ ] Nombres de variables descriptivos
-- [ ] Métodos pequeños (<20 líneas idealmente)
+- [ ] Mï¿½todos pequeï¿½os (<20 lï¿½neas idealmente)
 
 #### Arquitectura
 - [ ] Flujo de dependencias correcto
@@ -1124,20 +1144,20 @@ Assert.Equal("Usuario creado exitosamente", resultado.Mensaje);
 - [ ] Todas las dependencias mediante interfaces
 
 #### Funcionalidad
-- [ ] Crear usuario con datos válidos funciona
+- [ ] Crear usuario con datos vï¿½lidos funciona
 - [ ] Validaciones funcionan correctamente
 - [ ] Email duplicado es detectado
 - [ ] Clave de 11 caracteres es validada
-- [ ] Lista se actualiza después de crear
+- [ ] Lista se actualiza despuï¿½s de crear
 
 #### Testing
-- [ ] Al menos los casos positivos básicos probados manualmente
+- [ ] Al menos los casos positivos bï¿½sicos probados manualmente
 - [ ] Al menos un caso negativo probado (email duplicado)
 - [ ] Flujo completo funciona
 
-#### Documentación
+#### Documentaciï¿½n
 - [ ] README.md actualizado
-- [ ] Comentarios XML en clases públicas
+- [ ] Comentarios XML en clases pï¿½blicas
 - [ ] DEVELOPMENT.md refleja arquitectura actual
 
 ---
@@ -1150,27 +1170,27 @@ Assert.Equal("Usuario creado exitosamente", resultado.Mensaje);
 - **Design Patterns** - Gang of Four
 - **Domain-Driven Design** - Eric Evans
 
-### Enlaces Útiles
+### Enlaces ï¿½tiles
 - [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
-- [Clean Architecture (artículo)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Clean Architecture (artï¿½culo)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Dependency Injection en .NET](https://docs.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)
 - [C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/fundamentals/coding-style/coding-conventions)
 
 ---
 
-## ?? Conclusión
+## ?? Conclusiï¿½n
 
 Este proyecto es un ejemplo completo de:
 - ? Arquitectura limpia y escalable
-- ? Código profesional y mantenible
-- ? Aplicación práctica de principios SOLID
+- ? Cï¿½digo profesional y mantenible
+- ? Aplicaciï¿½n prï¿½ctica de principios SOLID
 - ? Uso correcto de Dependency Injection
-- ? Balance entre teoría y pragmatismo
+- ? Balance entre teorï¿½a y pragmatismo
 
 **Puede servir como plantilla para futuros proyectos Windows Forms con Clean Architecture.**
 
 ---
 
-**Última actualización:** $(date)  
-**Mantenedor:** Sistema de Gestión Peluquería  
-**Versión:** 1.0
+**ï¿½ltima actualizaciï¿½n:** $(date)  
+**Mantenedor:** Sistema de Gestiï¿½n Peluquerï¿½a  
+**Versiï¿½n:** 1.0
