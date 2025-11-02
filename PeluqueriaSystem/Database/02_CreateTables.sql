@@ -1,6 +1,6 @@
 -- =============================================
--- Script: Creaci�n de Tablas
--- Descripci�n: Crea las tablas Rol, Estado y Usuario con sus restricciones
+-- Script: Creación de Tablas
+-- Descripción: Crea las tablas Rol, Estado y Usuario con sus restricciones
 -- =============================================
 
 USE [PeluSystem];
@@ -15,7 +15,7 @@ PRINT 'Creando tabla Rol...';
 IF OBJECT_ID('[dbo].[Rol]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Rol];
- PRINT '  ? Tabla Rol eliminada (ya exist�a)';
+ PRINT '  ? Tabla Rol eliminada (ya existía)';
 END
 GO
 
@@ -47,7 +47,7 @@ PRINT 'Creando tabla Estado...';
 IF OBJECT_ID('[dbo].[Estado]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Estado];
-    PRINT '  ? Tabla Estado eliminada (ya exist�a)';
+    PRINT '  ? Tabla Estado eliminada (ya existía)';
 END
 GO
 
@@ -79,22 +79,22 @@ PRINT 'Creando tabla Usuario...';
 IF OBJECT_ID('[dbo].[Usuario]', 'U') IS NOT NULL
 BEGIN
     DROP TABLE [dbo].[Usuario];
-    PRINT '  ? Tabla Usuario eliminada (ya exist�a)';
+    PRINT '  ? Tabla Usuario eliminada (ya existía)';
 END
 GO
 
 -- Crear tabla Usuario simplificada:
 -- - ID autoincremental con IDENTITY(1,1)
 -- - Fecha_Agregar con valor por defecto GETDATE()
--- - Eliminadas columnas de auditor�a innecesarias
+-- - Eliminadas columnas de auditoría innecesarias
 CREATE TABLE [dbo].[Usuario] (
     [ID] INT NOT NULL IDENTITY(1,1),
     [Apellido] VARCHAR(80) NULL,
     [Nombre] VARCHAR(50) NULL,
     [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
-    [Estado] INT NOT NULL,
-    [Clave] VARCHAR(11) NULL,
+  [Estado] INT NOT NULL,
+    [Clave] VARCHAR(64) NULL,  -- Aumentado a 64 para soportar hashes SHA256 (44 caracteres en Base64)
     [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (
@@ -104,9 +104,9 @@ CREATE TABLE [dbo].[Usuario] (
         STATISTICS_NORECOMPUTE = OFF,
         IGNORE_DUP_KEY = OFF,
         ALLOW_ROW_LOCKS = ON,
-        ALLOW_PAGE_LOCKS = ON,
+      ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
-    ) ON [PRIMARY]
+  ) ON [PRIMARY]
 ) ON [PRIMARY];
 GO
 

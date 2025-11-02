@@ -1,5 +1,5 @@
 using ABS.Context;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace CONTEXT
 {

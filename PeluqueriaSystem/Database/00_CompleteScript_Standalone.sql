@@ -118,7 +118,7 @@ CREATE TABLE [dbo].[Usuario] (
     [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
-    [Clave] VARCHAR(11) NULL,
+    [Clave] VARCHAR(64) NULL,
     [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (

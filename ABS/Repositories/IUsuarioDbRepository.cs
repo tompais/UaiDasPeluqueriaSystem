@@ -1,5 +1,5 @@
 using DOM;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace ABS.Repositories;
 

@@ -1,6 +1,6 @@
 using ABS.Context;
 using ABS.Repositories;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 namespace REPO
 {
