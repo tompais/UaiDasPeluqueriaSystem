@@ -4,11 +4,17 @@ using DOM;
 namespace PeluqueriaSystem;
 
 /// <summary>
-/// Formulario para dar de alta un nuevo usuario
+/// Formulario para dar de alta o modificar un usuario
 /// </summary>
 public partial class FormAltaUsuario : Form
 {
     private readonly AppUsuario _appUsuario;
+    private DomUsuario? _usuarioActual;
+
+    /// <summary>
+    /// ID del usuario a modificar. Si es 0, se trata de un alta
+    /// </summary>
+    public int ID { get; set; }
 
     public FormAltaUsuario(AppUsuario appUsuario)
     {
@@ -19,6 +25,10 @@ public partial class FormAltaUsuario : Form
         cmbRol.DataSource = Enum.GetValues(typeof(DomUsuario.RolUsuario));
         cmbRol.SelectedIndex = 0; // Cliente por defecto
 
+        // Inicializar ComboBox de estados
+        cmbEstado.DataSource = Enum.GetValues(typeof(DomUsuario.EstadoUsuario));
+        cmbEstado.SelectedIndex = 0; // Activo por defecto
+
         // Suscribir eventos para validación en tiempo real
         txtNombre.TextChanged += ValidarFormulario;
         txtApellido.TextChanged += ValidarFormulario;
@@ -27,6 +37,61 @@ public partial class FormAltaUsuario : Form
 
         // Validación inicial
         ValidarFormulario(null, EventArgs.Empty);
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+
+        if (ID > 0)
+        {
+            // Modo modificación
+            CargarUsuario();
+            Text = "Modificar Usuario";
+            lblTitulo.Text = "Modificar Usuario";
+
+            // En modo modificación, la clave es opcional
+            txtClave.PlaceholderText = "Dejar en blanco para mantener la clave actual";
+        }
+        else
+        {
+            // Modo alta
+            Text = "Nuevo Usuario";
+            lblTitulo.Text = "Nuevo Usuario";
+            txtClave.PlaceholderText = "";
+        }
+    }
+
+    private void CargarUsuario()
+    {
+        try
+        {
+            _usuarioActual = _appUsuario.TraerPorId(ID);
+
+            if (_usuarioActual == null)
+            {
+                MessageBox.Show("Usuario no encontrado", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.Cancel;
+                Close();
+                return;
+            }
+
+            // Cargar datos en los controles
+            txtNombre.Text = _usuarioActual.Nombre;
+            txtApellido.Text = _usuarioActual.Apellido;
+            txtEmail.Text = _usuarioActual.Email;
+            cmbRol.SelectedItem = _usuarioActual.Rol;
+            cmbEstado.SelectedItem = _usuarioActual.Estado;
+            txtClave.Text = ""; // No mostramos la clave por seguridad
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al cargar usuario: {ex.Message}", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
     }
 
     private void ValidarFormulario(object? sender, EventArgs e)
@@ -54,10 +119,21 @@ public partial class FormAltaUsuario : Form
         else if (txtEmail.Text.Length > 180)
             errores.Add("El email no puede superar los 180 caracteres");
 
-        if (string.IsNullOrWhiteSpace(txtClave.Text))
-            errores.Add("La clave es obligatoria");
-        else if (txtClave.Text.Length != 11)
-            errores.Add("La clave debe tener exactamente 11 caracteres");
+        // En modo alta, la clave es obligatoria
+        // En modo modificación, es opcional (solo si se quiere cambiar)
+        if (ID == 0)
+        {
+            if (string.IsNullOrWhiteSpace(txtClave.Text))
+                errores.Add("La clave es obligatoria");
+            else if (txtClave.Text.Length != 11)
+                errores.Add("La clave debe tener exactamente 11 caracteres");
+        }
+        else
+        {
+            // Si se ingresó una clave en modo modificación, validarla
+            if (!string.IsNullOrWhiteSpace(txtClave.Text) && txtClave.Text.Length != 11)
+                errores.Add("La clave debe tener exactamente 11 caracteres");
+        }
 
         return errores;
     }
@@ -77,21 +153,33 @@ public partial class FormAltaUsuario : Form
 
             if (errores.Count == 0)
             {
-                // Verificar que el email no exista
-                if (!_appUsuario.ExisteEmail(txtEmail.Text))
-                {
-                    // Crear usuario
-                    var rol = (DomUsuario.RolUsuario)(cmbRol.SelectedItem ?? DomUsuario.RolUsuario.Cliente);
-                    _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
+                var rol = (DomUsuario.RolUsuario)(cmbRol.SelectedItem ?? DomUsuario.RolUsuario.Cliente);
 
-                    MessageBox.Show("Usuario creado exitosamente", "Éxito",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    exitoso = true;
+                if (ID == 0)
+                {
+                    // Modo alta
+                    if (!_appUsuario.ExisteEmail(txtEmail.Text))
+                    {
+                        _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
+                        MessageBox.Show("Usuario creado exitosamente", "Éxito",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        exitoso = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("El email ya está registrado", "Error de Validación",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("El email ya está registrado", "Error de Validación",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    // Modo modificación
+                    var estado = (DomUsuario.EstadoUsuario)(cmbEstado.SelectedItem ?? DomUsuario.EstadoUsuario.Activo);
+                    _appUsuario.Modificar(ID, txtNombre.Text, txtApellido.Text, txtEmail.Text,
+                        txtClave.Text, rol, estado);
+                    MessageBox.Show("Usuario modificado exitosamente", "Éxito",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    exitoso = true;
                 }
             }
             else

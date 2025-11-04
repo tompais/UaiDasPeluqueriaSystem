@@ -13,19 +13,28 @@ namespace CONTEXT
         }
 
         private static string StringConexion() =>
-            // Permite configurar la cadena de conexi�n mediante variable de entorno
-            // Si no est� definida, usa el valor por defecto
+            // Permite configurar la cadena de conexión mediante variable de entorno
+            // Si no está definida, usa el valor por defecto
             Environment.GetEnvironmentVariable("PELUQUERIA_CONNECTIONSTRING")
-            ?? "Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True";
+            ?? "Data Source=192.168.1.40,1433;Initial Catalog=PeluSystem;User ID=sa;Password=yourpassword;TrustServerCertificate=True";
 
         public SqlConnection AbrirConexion()
         {
-            con.ConnectionString = StringConexion();
-            con.Open();
+            if (con.State == System.Data.ConnectionState.Closed)
+            {
+                con.ConnectionString = StringConexion();
+                con.Open();
+            }
             return con;
         }
 
-        public void CerrarConexion() => con.Close();
+        public void CerrarConexion()
+        {
+            if (con.State != System.Data.ConnectionState.Closed)
+            {
+                con.Close();
+            }
+        }
 
         public SqlDataReader EjecutarSQL(SqlCommand cmd) => cmd.ExecuteReader();
     }

@@ -39,6 +39,8 @@ namespace PeluqueriaSystem
             txtClave = new TextBox();
             lblRol = new Label();
             cmbRol = new ComboBox();
+            lblEstado = new Label();
+            cmbEstado = new ComboBox();
             btnGuardar = new Button();
             btnCancelar = new Button();
             SuspendLayout();
@@ -145,24 +147,43 @@ namespace PeluqueriaSystem
             cmbRol.Size = new Size(263, 23);
             cmbRol.TabIndex = 10;
             // 
+            // lblEstado
+            // 
+            lblEstado.AutoSize = true;
+            lblEstado.Location = new Point(10, 195);
+            lblEstado.Name = "lblEstado";
+            lblEstado.Size = new Size(51, 15);
+            lblEstado.TabIndex = 11;
+            lblEstado.Text = "Estado:*";
+            // 
+            // cmbEstado
+            // 
+            cmbEstado.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbEstado.FormattingEnabled = true;
+            cmbEstado.Location = new Point(105, 193);
+            cmbEstado.Margin = new Padding(3, 2, 3, 2);
+            cmbEstado.Name = "cmbEstado";
+            cmbEstado.Size = new Size(263, 23);
+            cmbEstado.TabIndex = 12;
+            // 
             // btnGuardar
             // 
-            btnGuardar.Location = new Point(192, 202);
+            btnGuardar.Location = new Point(192, 232);
             btnGuardar.Margin = new Padding(3, 2, 3, 2);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(88, 26);
-            btnGuardar.TabIndex = 11;
+            btnGuardar.TabIndex = 13;
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += BtnGuardar_Click;
             // 
             // btnCancelar
             // 
-            btnCancelar.Location = new Point(289, 202);
+            btnCancelar.Location = new Point(289, 232);
             btnCancelar.Margin = new Padding(3, 2, 3, 2);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(79, 26);
-            btnCancelar.TabIndex = 12;
+            btnCancelar.TabIndex = 14;
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += BtnCancelar_Click;
@@ -171,9 +192,11 @@ namespace PeluqueriaSystem
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(380, 241);
+            ClientSize = new Size(380, 271);
             Controls.Add(btnCancelar);
             Controls.Add(btnGuardar);
+            Controls.Add(cmbEstado);
+            Controls.Add(lblEstado);
             Controls.Add(cmbRol);
             Controls.Add(lblRol);
             Controls.Add(txtClave);
@@ -207,9 +230,11 @@ namespace PeluqueriaSystem
      private TextBox txtEmail;
         private Label lblClave;
    private TextBox txtClave;
-private Label lblRol;
-   private ComboBox cmbRol;
-    private Button btnGuardar;
-        private Button btnCancelar;
+        private Label lblRol;
+        private ComboBox cmbRol;
+        private Label lblEstado;
+private ComboBox cmbEstado;
+        private Button btnGuardar;
+     private Button btnCancelar;
     }
 }

@@ -86,6 +86,7 @@ GO
 -- Crear tabla Usuario simplificada:
 -- - ID autoincremental con IDENTITY(1,1)
 -- - Fecha_Agregar con valor por defecto GETDATE()
+-- - FechaModificacion para registrar actualizaciones
 -- - Eliminadas columnas de auditoría innecesarias
 CREATE TABLE [dbo].[Usuario] (
     [ID] INT NOT NULL IDENTITY(1,1),
@@ -93,20 +94,21 @@ CREATE TABLE [dbo].[Usuario] (
     [Nombre] VARCHAR(50) NULL,
     [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
-  [Estado] INT NOT NULL,
+    [Estado] INT NOT NULL,
     [Clave] VARCHAR(64) NULL,  -- Aumentado a 64 para soportar hashes SHA256 (44 caracteres en Base64)
     [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
+    [FechaModificacion] DATETIME NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (
         [ID] ASC
     ) WITH (
-        PAD_INDEX = OFF,
+   PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,
         IGNORE_DUP_KEY = OFF,
-        ALLOW_ROW_LOCKS = ON,
-      ALLOW_PAGE_LOCKS = ON,
+      ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
-  ) ON [PRIMARY]
+    ) ON [PRIMARY]
 ) ON [PRIMARY];
 GO
 

@@ -11,6 +11,7 @@ namespace DOM
         public required string Clave { get; set; }
         public required string DV { get; set; }
         public DateTime Fecha_Agregar { get; init; } = DateTime.Now;
+        public DateTime? FechaModificacion { get; set; }
 
         /// <summary>
         /// Estados posibles para un usuario

@@ -27,6 +27,25 @@ namespace REPO
             return lista;
         }
 
+        public DOM.DomUsuario? TraerPorId(int id)
+        {
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = "SELECT * FROM Usuario WHERE ID = @ID";
+                cmd.Connection = dataAccess.AbrirConexion();
+                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = id;
+
+                using SqlDataReader dr = dataAccess.EjecutarSQL(cmd);
+                var lista = CompletarLista(dr, []);
+                return lista.FirstOrDefault();
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
         public DOM.DomUsuario Crear(DOM.DomUsuario usuario)
         {
             try
@@ -34,18 +53,18 @@ namespace REPO
                 using SqlCommand cmd = new();
                 cmd.CommandText = @"INSERT INTO Usuario (Apellido, Nombre, Email, Rol, Estado, Clave, DV) 
                                        VALUES (@Apellido, @Nombre, @Email, @Rol, @Estado, @Clave, @DV);
-                                       SELECT CAST(SCOPE_IDENTITY() as int);";
+   SELECT CAST(SCOPE_IDENTITY() as int);";
                 cmd.Connection = dataAccess.AbrirConexion();
 
-                cmd.Parameters.AddWithValue("@Apellido", usuario.Apellido);
-                cmd.Parameters.AddWithValue("@Nombre", usuario.Nombre);
-                cmd.Parameters.AddWithValue("@Email", usuario.Email);
-                cmd.Parameters.AddWithValue("@Rol", (int)usuario.Rol);
-                cmd.Parameters.AddWithValue("@Estado", (int)usuario.Estado);
-                cmd.Parameters.AddWithValue("@Clave", usuario.Clave);
-                cmd.Parameters.AddWithValue("@DV", usuario.DV ?? "");
+                cmd.Parameters.Add("@Apellido", System.Data.SqlDbType.VarChar, 80).Value = usuario.Apellido;
+                cmd.Parameters.Add("@Nombre", System.Data.SqlDbType.VarChar, 50).Value = usuario.Nombre;
+                cmd.Parameters.Add("@Email", System.Data.SqlDbType.VarChar, 180).Value = usuario.Email;
+                cmd.Parameters.Add("@Rol", System.Data.SqlDbType.Int).Value = (int)usuario.Rol;
+                cmd.Parameters.Add("@Estado", System.Data.SqlDbType.Int).Value = (int)usuario.Estado;
+                cmd.Parameters.Add("@Clave", System.Data.SqlDbType.VarChar, 64).Value = usuario.Clave;
+                cmd.Parameters.Add("@DV", System.Data.SqlDbType.VarChar, 50).Value = usuario.DV ?? "";
 
-                var nuevoId = (int)cmd.ExecuteScalar();
+                var nuevoId = (int)cmd.ExecuteScalar()!;
 
                 return new DOM.DomUsuario
                 {
@@ -66,6 +85,57 @@ namespace REPO
             }
         }
 
+        public void Modificar(DOM.DomUsuario usuario)
+        {
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = @"UPDATE Usuario 
+                                     SET Apellido = @Apellido,
+                                         Nombre = @Nombre,
+                                         Email = @Email,
+                                         Rol = @Rol,
+                                         Estado = @Estado,
+                                         Clave = @Clave,
+                                         DV = @DV,
+                                     FechaModificacion = GETDATE()
+                                     WHERE ID = @ID";
+                cmd.Connection = dataAccess.AbrirConexion();
+
+                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = usuario.ID;
+                cmd.Parameters.Add("@Apellido", System.Data.SqlDbType.VarChar, 80).Value = usuario.Apellido;
+                cmd.Parameters.Add("@Nombre", System.Data.SqlDbType.VarChar, 50).Value = usuario.Nombre;
+                cmd.Parameters.Add("@Email", System.Data.SqlDbType.VarChar, 180).Value = usuario.Email;
+                cmd.Parameters.Add("@Rol", System.Data.SqlDbType.Int).Value = (int)usuario.Rol;
+                cmd.Parameters.Add("@Estado", System.Data.SqlDbType.Int).Value = (int)usuario.Estado;
+                cmd.Parameters.Add("@Clave", System.Data.SqlDbType.VarChar, 64).Value = usuario.Clave;
+                cmd.Parameters.Add("@DV", System.Data.SqlDbType.VarChar, 50).Value = usuario.DV ?? "";
+
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
+        public void Eliminar(int id)
+        {
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = "DELETE FROM Usuario WHERE ID = @ID";
+                cmd.Connection = dataAccess.AbrirConexion();
+                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = id;
+
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
         public bool ExisteEmail(string email)
         {
             try
@@ -73,9 +143,28 @@ namespace REPO
                 using SqlCommand cmd = new();
                 cmd.CommandText = "SELECT COUNT(*) FROM Usuario WHERE Email = @Email";
                 cmd.Connection = dataAccess.AbrirConexion();
-                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.Add("@Email", System.Data.SqlDbType.VarChar, 180).Value = email;
 
-                var count = (int)cmd.ExecuteScalar();
+                var count = (int)cmd.ExecuteScalar()!;
+                return count > 0;
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
+        public bool ExisteEmailExcluyendoId(string email, int idExcluir)
+        {
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = "SELECT COUNT(*) FROM Usuario WHERE Email = @Email AND ID != @ID";
+                cmd.Connection = dataAccess.AbrirConexion();
+                cmd.Parameters.Add("@Email", System.Data.SqlDbType.VarChar, 180).Value = email;
+                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = idExcluir;
+
+                var count = (int)cmd.ExecuteScalar()!;
                 return count > 0;
             }
             finally
@@ -98,7 +187,10 @@ namespace REPO
                     Estado = (DOM.DomUsuario.EstadoUsuario)Convert.ToInt32(dr["Estado"]),
                     Clave = dr["Clave"]?.ToString() ?? string.Empty,
                     DV = dr["DV"]?.ToString() ?? string.Empty,
-                    Fecha_Agregar = Convert.ToDateTime(dr["Fecha_Agregar"])
+                    Fecha_Agregar = Convert.ToDateTime(dr["Fecha_Agregar"]),
+                    FechaModificacion = dr["FechaModificacion"] != DBNull.Value
+                        ? Convert.ToDateTime(dr["FechaModificacion"])
+                        : null
                 };
                 lista.Add(u);
             }

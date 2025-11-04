@@ -120,7 +120,7 @@ CREATE TABLE [dbo].[Usuario] (
     [Estado] INT NOT NULL,
     [Clave] VARCHAR(64) NULL,
     [DV] VARCHAR(50) NULL,
-    [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
+    [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),`n    [FechaModificacion] DATETIME NULL,
     CONSTRAINT [PK_Usuario] PRIMARY KEY CLUSTERED (
         [ID] ASC
     ) WITH (
