@@ -38,7 +38,9 @@ namespace PeluqueriaSystem
       colFechaCreacion = new DataGridViewTextBoxColumn();
       btnNuevo = new Button();
             btnRefrescar = new Button();
-   lblTitulo = new Label();
+            btnModificar = new Button();
+     btnEliminar = new Button();
+     lblTitulo = new Label();
   ((System.ComponentModel.ISupportInitialize)dgvUsuarios).BeginInit();
  SuspendLayout();
  // 
@@ -60,7 +62,7 @@ dgvUsuarios.Size = new Size(960, 450);
       // 
       // colId
       //
-      colId.DataPropertyName = "Id";
+      colId.DataPropertyName = "ID";
 colId.HeaderText = "ID";
       colId.Name = "colId";
       colId.ReadOnly = true;
@@ -108,8 +110,8 @@ colId.HeaderText = "ID";
       // 
       // colFechaCreacion
       //
-      colFechaCreacion.DataPropertyName = "FechaCreacion";
-      colFechaCreacion.HeaderText = "Fecha Creación";
+      colFechaCreacion.DataPropertyName = "Fecha_Agregar";
+      colFechaCreacion.HeaderText = "Fecha CreaciÃ³n";
       colFechaCreacion.Name = "colFechaCreacion";
       colFechaCreacion.ReadOnly = true;
       colFechaCreacion.Width = 150;
@@ -123,58 +125,82 @@ colId.HeaderText = "ID";
      btnNuevo.TabIndex = 1;
     btnNuevo.Text = "Nuevo Usuario";
        btnNuevo.UseVisualStyleBackColor = true;
-   btnNuevo.Click += btnNuevo_Click;
+   btnNuevo.Click += BtnNuevo_Click;
   // 
-   // btnRefrescar
+   // btnModificar
       // 
-      btnRefrescar.Location = new Point(140, 40);
-     btnRefrescar.Name = "btnRefrescar";
-     btnRefrescar.Size = new Size(100, 30);
-      btnRefrescar.TabIndex = 2;
-       btnRefrescar.Text = "Refrescar";
-   btnRefrescar.UseVisualStyleBackColor = true;
-  btnRefrescar.Click += BtnRefrescar_Click;
-    // 
-    // lblTitulo
-   // 
-   lblTitulo.AutoSize = true;
-     lblTitulo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-   lblTitulo.Location = new Point(12, 9);
-    lblTitulo.Name = "lblTitulo";
-       lblTitulo.Size = new Size(197, 28);
-         lblTitulo.TabIndex = 3;
-   lblTitulo.Text = "Gestión de Usuarios";
-    // 
-      // FormUsuarios
+      btnModificar.Location = new Point(140, 40);
+      btnModificar.Name = "btnModificar";
+        btnModificar.Size = new Size(100, 30);
+ btnModificar.TabIndex = 2;
+      btnModificar.Text = "Modificar";
+      btnModificar.UseVisualStyleBackColor = true;
+     btnModificar.Click += BtnModificar_Click;
+     // 
+        // btnEliminar
+     // 
+            btnEliminar.Location = new Point(248, 40);
+            btnEliminar.Name = "btnEliminar";
+       btnEliminar.Size = new Size(100, 30);
+      btnEliminar.TabIndex = 3;
+       btnEliminar.Text = "Eliminar";
+        btnEliminar.UseVisualStyleBackColor = true;
+    btnEliminar.Click += BtnEliminar_Click;
+     // 
+   // btnRefrescar
+       // 
+ btnRefrescar.Location = new Point(356, 40);
+ btnRefrescar.Name = "btnRefrescar";
+      btnRefrescar.Size = new Size(100, 30);
+            btnRefrescar.TabIndex = 4;
+      btnRefrescar.Text = "Refrescar";
+            btnRefrescar.UseVisualStyleBackColor = true;
+            btnRefrescar.Click += BtnRefrescar_Click;
+     // 
+   // lblTitulo
+       // 
+      lblTitulo.AutoSize = true;
+            lblTitulo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+  lblTitulo.Location = new Point(12, 9);
+   lblTitulo.Name = "lblTitulo";
+            lblTitulo.Size = new Size(197, 28);
+       lblTitulo.TabIndex = 5;
+      lblTitulo.Text = "GestiÃ³n de Usuarios";
   // 
-   AutoScaleDimensions = new SizeF(8F, 20F);
-      AutoScaleMode = AutoScaleMode.Font;
-   ClientSize = new Size(984, 541);
-     Controls.Add(lblTitulo);
-      Controls.Add(btnRefrescar);
-        Controls.Add(btnNuevo);
-    Controls.Add(dgvUsuarios);
+            // FormUsuarios
+ // 
+  AutoScaleDimensions = new SizeF(8F, 20F);
+   AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(984, 541);
+  Controls.Add(lblTitulo);
+     Controls.Add(btnRefrescar);
+            Controls.Add(btnEliminar);
+          Controls.Add(btnModificar);
+   Controls.Add(btnNuevo);
+  Controls.Add(dgvUsuarios);
           Name = "FormUsuarios";
- StartPosition = FormStartPosition.CenterParent;
-  Text = "Usuarios";
-  Load += FrmUsuarios_Load;
-    ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
-      ResumeLayout(false);
-     PerformLayout();
-}
+   StartPosition = FormStartPosition.CenterParent;
+     Text = "Usuarios";
+            Load += FrmUsuarios_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvUsuarios).EndInit();
+    ResumeLayout(false);
+            PerformLayout();
+        }
 
         #endregion
 
-   private DataGridView dgvUsuarios;
-   private DataGridViewTextBoxColumn colId;
-   private DataGridViewTextBoxColumn colNombre;
-private DataGridViewTextBoxColumn colApellido;
-   private DataGridViewTextBoxColumn colEmail;
-   private DataGridViewTextBoxColumn colEstado;
-   private DataGridViewTextBoxColumn colRol;
-   private DataGridViewTextBoxColumn colFechaCreacion;
-    private Button btnNuevo;
-        private Button btnRefrescar;
-private Label lblTitulo;
+      private DataGridView dgvUsuarios;
+        private DataGridViewTextBoxColumn colId;
+      private DataGridViewTextBoxColumn colNombre;
+        private DataGridViewTextBoxColumn colApellido;
+        private DataGridViewTextBoxColumn colEmail;
+        private DataGridViewTextBoxColumn colEstado;
+        private DataGridViewTextBoxColumn colRol;
+        private DataGridViewTextBoxColumn colFechaCreacion;
+  private Button btnNuevo;
+      private Button btnModificar;
+     private Button btnEliminar;
+     private Button btnRefrescar;
+        private Label lblTitulo;
     }
 }

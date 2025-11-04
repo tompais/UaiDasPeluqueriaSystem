@@ -1,47 +1,47 @@
 # ?? Scripts de Base de Datos - PeluSystem
 
-Esta carpeta contiene todos los scripts SQL necesarios para crear y configurar la base de datos del Sistema de Gestión de Peluquería.
+Esta carpeta contiene todos los scripts SQL necesarios para crear y configurar la base de datos del Sistema de Gestiï¿½n de Peluquerï¿½a.
 
 ---
 
 ## ?? Resumen Ejecutivo
 
-Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** de la Parte 2 del proyecto.
+Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** del proyecto.
 
-**Estado:** ? **PARTE 2 COMPLETADA AL 100%**
+**Estado:** ? **COMPLETADO AL 100%**
 
 ---
 
 ## ?? Lista de Scripts
 
-| # | Archivo | Descripción | Ejecutable |
+| # | Archivo | Descripciï¿½n | Ejecutable |
 |---|---------|-------------|-----------|
-| **0a** | `00_MasterScript.sql` | Script maestro | ? Sí (requiere SQLCMD Mode) |
-| **0b** | `00_CompleteScript_Standalone.sql` | Script completo | ? Sí ? RECOMENDADO |
-| **1** | `01_CreateDatabase.sql` | Crea PeluSystem | ? Sí |
-| **2** | `02_CreateTables.sql` | Rol, Estado, Usuario | ? Sí |
-| **3** | `03_CreateForeignKeys.sql` | Foreign Keys | ? Sí |
-| **4** | `04_SeedData.sql` | Datos iniciales | ? Sí |
-| **5** | `05_CRUDOperations.sql` | CRUD (Puntos 6,7,8) | ? Sí |
-| **6** | `06_UsuarioExamples.sql` | Ejemplos Usuario | ? Sí |
+| **0a** | `00_MasterScript.sql` | Script maestro | ? Sï¿½ (requiere SQLCMD Mode) |
+| **0b** | `00_CompleteScript_Standalone.sql` | Script completo | ? Sï¿½ ? RECOMENDADO |
+| **1** | `01_CreateDatabase.sql` | Crea PeluSystem | ? Sï¿½ |
+| **2** | `02_CreateTables.sql` | Rol, Estado, Usuario | ? Sï¿½ |
+| **3** | `03_CreateForeignKeys.sql` | Foreign Keys | ? Sï¿½ |
+| **4** | `04_SeedData.sql` | Datos iniciales | ? Sï¿½ |
+| **5** | `05_CRUDOperations.sql` | CRUD (Puntos 6,7,8) | ? Sï¿½ |
+| **6** | `06_UsuarioExamples.sql` | Ejemplos Usuario | ? Sï¿½ |
 
 ---
 
-## ?? Cómo Usar - 3 Opciones
+## ?? Cï¿½mo Usar - 3 Opciones
 
-### ? Opción 1: Script Standalone (MÁS FÁCIL)
+### ? Opciï¿½n 1: Script Standalone (Mï¿½S Fï¿½CIL)
 
 ```sql
 -- Abrir en SSMS: 00_CompleteScript_Standalone.sql
 -- Presionar F5
--- ¡Listo!
+-- ï¿½Listo!
 ```
 
-? No requiere configuración especial
+? No requiere configuraciï¿½n especial
 
 ---
 
-### Opción 2: Script Maestro
+### Opciï¿½n 2: Script Maestro
 
 ```sql
 -- 1. Query ? SQLCMD Mode (activar)
@@ -53,7 +53,7 @@ Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** de
 
 ---
 
-### Opción 3: Scripts Individuales
+### Opciï¿½n 3: Scripts Individuales
 
 Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 
@@ -61,7 +61,7 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 
 ## ? Cumplimiento de Requerimientos
 
-| Punto | Descripción | Estado | Archivo |
+| Punto | Descripciï¿½n | Estado | Archivo |
 |-------|-------------|--------|---------|
 | **1** | Tabla Usuario | ? | `02_CreateTables.sql` |
 | **2** | Consultas Usuario | ? | `06_UsuarioExamples.sql` |
@@ -99,21 +99,20 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 - Rol ? FK Rol.ID
 - Estado ? FK Estado.ID
 - Clave, DV
-- Usuario_Agregar, Usuario_Modificar
-- Fecha_Agregar (default GETDATE()), Fecha_Modificar
+- Fecha_Agregar (default GETDATE())
 
 ---
 
-## ?? Características
+## ?? Caracterï¿½sticas
 
-? **Idempotente**: Ejecutable múltiples veces sin error
-? **Feedback visual**: Mensajes durante ejecución
+? **Idempotente**: Ejecutable mï¿½ltiples veces sin error
+? **Feedback visual**: Mensajes durante ejecuciï¿½n
 ? **FK Relations**: Integridad referencial
 ? **Mejoras aplicadas**: ID autoincremental, defaults, nombres corregidos
 
 ---
 
-## ? Verificación
+## ? Verificaciï¿½n
 
 ```sql
 USE PeluSystem;
@@ -133,22 +132,41 @@ FROM sys.foreign_keys AS fk;
 
 ---
 
-## ?? Solución de Problemas
+## ?? Soluciï¿½n de Problemas
 
 ### Error: "Incorrect syntax near ':'"
-- **Solución**: Activar SQLCMD Mode o usar `00_CompleteScript_Standalone.sql`
+- **Soluciï¿½n**: Activar SQLCMD Mode o usar `00_CompleteScript_Standalone.sql`
 
 ### Error: "Cannot drop database"
-- **Solución**: El script ya incluye `SET SINGLE_USER WITH ROLLBACK IMMEDIATE`
+- **Soluciï¿½n**: El script ya incluye `SET SINGLE_USER WITH ROLLBACK IMMEDIATE`
 
 ---
 
-## ?? Próximos Pasos
+## ?? Arquitectura de Integraciï¿½n (Parte 4)
 
-1. ? Parte 2: Base de datos creada
-2. ?? Parte 3: Conectar C# a SQL Server
-3. ?? Parte 4: Migrar InMemoryContext
-4. ?? Parte 5: CRUD con BD real
+### Capas Implementadas
+
+| Capa | Clase | Descripciï¿½n |
+|------|-------|-------------|
+| **DOM** | `domUsuario` | Entidad de dominio con propiedades del usuario |
+| **CONTEXT** | `dalSQLServer` | Manejo de conexiï¿½n y ejecuciï¿½n SQL |
+| **REPO** | `repoUsuario` | Clase estï¿½tica con `Traer()` y `CompletarLista()` |
+| **APP** | `appUsuario` | Wrapper que llama al repositorio |
+| **UI** | `FormUsuarios` | Formulario para mostrar usuarios |
+
+### Configuraciï¿½n de Conexiï¿½n
+
+La cadena de conexiï¿½n puede configurarse mediante:
+
+1. **Variable de entorno** (recomendado para producciï¿½n):
+   ```bash
+   set PELUQUERIA_CONNECTIONSTRING=Data Source=SERVER;Initial Catalog=PeluSystem;Integrated Security=True
+   ```
+
+2. **Valor por defecto** (desarrollo):
+   ```
+   Data Source=DESKTOP-02DP0JO;Initial Catalog=PeluSystem;Integrated Security=True
+   ```
 
 ---
 
@@ -159,19 +177,20 @@ FROM sys.foreign_keys AS fk;
 | Roles | Enum | Tabla (4 registros) |
 | Estados | Enum | Tabla (2 registros) |
 | Persistencia | InMemory | SQL Server |
-| IDs | Código | IDENTITY |
+| IDs | Cï¿½digo | IDENTITY |
 
 ---
 
-## ?? Conclusión
+## ?? Conclusiï¿½n
 
 ? Todos los requerimientos completados
 ? Scripts profesionales e idempotentes
-? Listo para Parte 3 (conexión C#)
+? Integraciï¿½n completa con arquitectura N capas
+? Conexiï¿½n C# ? SQL Server funcionando
 
 ---
 
 **Autor:** GitHub Copilot  
-**Proyecto:** Sistema Gestión Peluquería  
-**Versión:** 1.0  
+**Proyecto:** Sistema Gestiï¿½n Peluquerï¿½a  
+**Versiï¿½n:** 2.0  
 **Estado:** ? Completado

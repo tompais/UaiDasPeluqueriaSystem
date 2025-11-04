@@ -1,75 +1,209 @@
-using ABS.Application;
+using APP;
 using DOM;
 
 namespace PeluqueriaSystem;
 
 /// <summary>
-/// Formulario para dar de alta un nuevo usuario
+/// Formulario para dar de alta o modificar un usuario
 /// </summary>
 public partial class FormAltaUsuario : Form
 {
-    private readonly IUsuarioService _usuarioService;
+    private readonly AppUsuario _appUsuario;
+    private DomUsuario? _usuarioActual;
 
-    public FormAltaUsuario(IUsuarioService usuarioService)
+    /// <summary>
+    /// ID del usuario a modificar. Si es 0, se trata de un alta
+    /// </summary>
+    public int ID { get; set; }
+
+    public FormAltaUsuario(AppUsuario appUsuario)
     {
         InitializeComponent();
-        _usuarioService = usuarioService;
+        _appUsuario = appUsuario;
 
         // Inicializar ComboBox de roles
-        cmbRol.DataSource = Enum.GetValues(typeof(Usuario.RolUsuario));
+        cmbRol.DataSource = Enum.GetValues(typeof(DomUsuario.RolUsuario));
         cmbRol.SelectedIndex = 0; // Cliente por defecto
+
+        // Inicializar ComboBox de estados
+        cmbEstado.DataSource = Enum.GetValues(typeof(DomUsuario.EstadoUsuario));
+        cmbEstado.SelectedIndex = 0; // Activo por defecto
+
+        // Suscribir eventos para validaci贸n en tiempo real
+        txtNombre.TextChanged += ValidarFormulario;
+        txtApellido.TextChanged += ValidarFormulario;
+        txtEmail.TextChanged += ValidarFormulario;
+        txtClave.TextChanged += ValidarFormulario;
+
+        // Validaci贸n inicial
+        ValidarFormulario(null, EventArgs.Empty);
+    }
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+
+        if (ID > 0)
+        {
+            // Modo modificaci贸n
+            CargarUsuario();
+            Text = "Modificar Usuario";
+            lblTitulo.Text = "Modificar Usuario";
+
+            // En modo modificaci贸n, la clave es opcional
+            txtClave.PlaceholderText = "Dejar en blanco para mantener la clave actual";
+        }
+        else
+        {
+            // Modo alta
+            Text = "Nuevo Usuario";
+            lblTitulo.Text = "Nuevo Usuario";
+            txtClave.PlaceholderText = "";
+        }
+    }
+
+    private void CargarUsuario()
+    {
+        try
+        {
+            _usuarioActual = _appUsuario.TraerPorId(ID);
+
+            if (_usuarioActual == null)
+            {
+                MessageBox.Show("Usuario no encontrado", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DialogResult = DialogResult.Cancel;
+                Close();
+                return;
+            }
+
+            // Cargar datos en los controles
+            txtNombre.Text = _usuarioActual.Nombre;
+            txtApellido.Text = _usuarioActual.Apellido;
+            txtEmail.Text = _usuarioActual.Email;
+            cmbRol.SelectedItem = _usuarioActual.Rol;
+            cmbEstado.SelectedItem = _usuarioActual.Estado;
+            txtClave.Text = ""; // No mostramos la clave por seguridad
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error al cargar usuario: {ex.Message}", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+    }
+
+    private void ValidarFormulario(object? sender, EventArgs e)
+    {
+        var errores = ObtenerErroresValidacion();
+        btnGuardar.Enabled = errores.Count == 0;
+    }
+
+    private List<string> ObtenerErroresValidacion()
+    {
+        var errores = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(txtNombre.Text))
+            errores.Add("El nombre es obligatorio");
+        else if (txtNombre.Text.Length > 50)
+            errores.Add("El nombre no puede superar los 50 caracteres");
+
+        if (string.IsNullOrWhiteSpace(txtApellido.Text))
+            errores.Add("El apellido es obligatorio");
+        else if (txtApellido.Text.Length > 80)
+            errores.Add("El apellido no puede superar los 80 caracteres");
+
+        if (string.IsNullOrWhiteSpace(txtEmail.Text))
+            errores.Add("El email es obligatorio");
+        else if (txtEmail.Text.Length > 180)
+            errores.Add("El email no puede superar los 180 caracteres");
+
+        // En modo alta, la clave es obligatoria
+        // En modo modificaci贸n, es opcional (solo si se quiere cambiar)
+        if (ID == 0)
+        {
+            if (string.IsNullOrWhiteSpace(txtClave.Text))
+                errores.Add("La clave es obligatoria");
+            else if (txtClave.Text.Length != 11)
+                errores.Add("La clave debe tener exactamente 11 caracteres");
+        }
+        else
+        {
+            // Si se ingres贸 una clave en modo modificaci贸n, validarla
+            if (!string.IsNullOrWhiteSpace(txtClave.Text) && txtClave.Text.Length != 11)
+                errores.Add("La clave debe tener exactamente 11 caracteres");
+        }
+
+        return errores;
     }
 
     private void BtnGuardar_Click(object sender, EventArgs e)
     {
+        var exitoso = false;
+
         try
         {
             // Deshabilitar botones mientras se procesa
             btnGuardar.Enabled = false;
             btnCancelar.Enabled = false;
 
-            // Crear Request
-            var request = new CrearUsuarioRequest(
-                Nombre: txtNombre.Text,
-                Apellido: txtApellido.Text,
-                Email: txtEmail.Text,
-                Clave: txtClave.Text,
-                Rol: (Usuario.RolUsuario)(cmbRol.SelectedItem ?? Usuario.RolUsuario.Cliente)
-            );
+            // Validar nuevamente por seguridad
+            var errores = ObtenerErroresValidacion();
 
-            // Llamar al servicio
-            var resultado = _usuarioService.CrearUsuario(request);
-
-            if (resultado.Exitoso)
+            if (errores.Count == 0)
             {
-                MessageBox.Show(resultado.Mensaje, "蓌ito",
-               MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DialogResult = DialogResult.OK;
-                Close();
+                var rol = (DomUsuario.RolUsuario)(cmbRol.SelectedItem ?? DomUsuario.RolUsuario.Cliente);
+
+                if (ID == 0)
+                {
+                    // Modo alta
+                    if (!_appUsuario.ExisteEmail(txtEmail.Text))
+                    {
+                        _appUsuario.Crear(txtNombre.Text, txtApellido.Text, txtEmail.Text, txtClave.Text, rol);
+                        MessageBox.Show("Usuario creado exitosamente", "脡xito",
+                            MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        exitoso = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("El email ya est谩 registrado", "Error de Validaci贸n",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else
+                {
+                    // Modo modificaci贸n
+                    var estado = (DomUsuario.EstadoUsuario)(cmbEstado.SelectedItem ?? DomUsuario.EstadoUsuario.Activo);
+                    _appUsuario.Modificar(ID, txtNombre.Text, txtApellido.Text, txtEmail.Text,
+                        txtClave.Text, rol, estado);
+                    MessageBox.Show("Usuario modificado exitosamente", "脡xito",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    exitoso = true;
+                }
             }
             else
             {
-                // Mostrar errores de validaci髇
-                var mensajeError = resultado.Mensaje;
-                if (resultado.Errores.Count != 0)
-                {
-                    mensajeError += "\n\nDetalles:\n" + string.Join("\n", resultado.Errores);
-                }
-
-                MessageBox.Show(mensajeError, "Error de Validaci髇",
-                   MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Error de validaci贸n:\n\n" + string.Join("\n", errores),
+                    "Error de Validaci贸n", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
         catch (Exception ex)
         {
             MessageBox.Show($"Error inesperado: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         finally
         {
             // Rehabilitar botones
             btnGuardar.Enabled = true;
             btnCancelar.Enabled = true;
+
+            if (exitoso)
+            {
+                DialogResult = DialogResult.OK;
+                Close();
+            }
         }
     }
 

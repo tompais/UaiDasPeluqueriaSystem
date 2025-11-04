@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "PeluqueriaSystem": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "PELUQUERIA_CONNECTIONSTRING": "Data Source=192.168.1.40,1433;Initial Catalog=PeluSystem;User ID=SA;Password=toto495142540T+;TrustServerCertificate=True"
+      },
+      "nativeDebugging": false
+    }
+  }
+}
