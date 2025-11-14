@@ -53,9 +53,9 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 │ REPO       │  │ SERV                 │
 │ - RepoUsuario│  │ - EncriptacionService│
 │   * Traer()  │  │   * Encriptar()      │
-│   * TraerPorId│  └──────────────────────┘
-│   * Crear()  │
-│   * Modificar│
+│   * TraerPorId│  │ - Encriptar          │
+│   * Crear()  │  │   * CreateMD5()      │
+│   * Modificar│  └──────────────────────┘
 │   * Eliminar │
 │   * ExisteEmail│
 └──────────────┘
@@ -109,7 +109,7 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 |----------|------|----------------|--------------|
 | **DOM** | Class Library | Entidades del dominio (DomUsuario, enums) | Ninguna |
 | **ABS** | Class Library | Interfaces y abstracciones | DOM |
-| **SERV** | Class Library | Servicios auxiliares (encriptación SHA256) | ABS |
+| **SERV** | Class Library | Servicios auxiliares (encriptación SHA256, MD5) | ABS |
 | **CONTEXT** | Class Library | Acceso a datos SQL Server (DalSQLServer) | ABS, Microsoft.Data.SqlClient |
 | **REPO** | Class Library | Repositorio CRUD (RepoUsuario) | ABS, CONTEXT, DOM, Microsoft.Data.SqlClient |
 | **APP** | Class Library | Lógica de negocio (AppUsuario) | ABS, DOM, REPO, SERV |
@@ -134,8 +134,11 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 - `RepoUsuario`: Solo maneja persistencia SQL
   - Cambiaría si: Las operaciones de BD cambian
   
-- `EncriptacionService`: Solo encripta datos
-  - Cambiaría si: El algoritmo de encriptación cambia
+- `EncriptacionService`: Solo encripta datos con SHA256
+  - Cambiaría si: El algoritmo SHA256 cambia
+  
+- `Encriptar`: Solo encripta datos con MD5
+  - Cambiaría si: El algoritmo MD5 cambia
 
 - `DalSQLServer`: Solo maneja conexiones SQL
   - Cambiaría si: La forma de conectar a SQL Server cambia
@@ -326,7 +329,9 @@ public void Eliminar(int id)
 
 ## 🔐 Seguridad
 
-### Encriptación de Claves SHA256
+### Encriptación de Claves
+
+#### SHA256 (Principal)
 
 ```csharp
 public class EncriptacionService : IEncriptacionService
@@ -346,6 +351,37 @@ var hash = SHA256.HashData(bytes);
 ```
 Entrada:  "MiClave1234" (11 caracteres)
 Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9=" (44 caracteres Base64)
+```
+
+#### MD5 (Auxiliar)
+
+```csharp
+public class Encriptar()
+{
+    public static string CreateMD5(string input)
+    {
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+        StringBuilder sb = new();
+        foreach (byte b in hashBytes)
+            sb.Append(b.ToString("X2"));
+
+        return sb.ToString();
+    }
+}
+```
+
+**Ejemplo:**
+```
+Entrada:  "MiClave1234"
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
+```
+
+**Uso:**
+```csharp
+string hash = Encriptar.CreateMD5("texto a encriptar");
 ```
 
 ### Prevención de Inyección SQL

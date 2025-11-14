@@ -99,7 +99,7 @@ PeluqueriaSystem.sln
 │
 ├── DOM/ # 📦 Entidades del dominio (DomUsuario, enums)
 ├── ABS/        # 🔌 Interfaces y abstracciones
-├── SERV/    # ⚙️ Servicios auxiliares (EncriptacionService)
+├── SERV/    # ⚙️ Servicios auxiliares (EncriptacionService, Encriptar)
 ├── CONTEXT/       # 🗄️ Acceso a datos SQL Server (DalSQLServer)
 ├── REPO/       # 💾 Repositorio CRUD (RepoUsuario)
 ├── APP/           # 🧠 Lógica de negocio (AppUsuario)
@@ -291,8 +291,10 @@ Ver más casos en [`DEVELOPMENT.md`](PeluqueriaSystem/DEVELOPMENT.md)
 
 ### Encriptación de Claves
 
+#### SHA256 (Principal)
 - **Algoritmo:** SHA256 (hash unidireccional de 256 bits)
 - **Output:** Base64 (44 caracteres)
+- **Clase:** `EncriptacionService`
 - **Características:**
   - ✅ Hash unidireccional (no reversible)
   - ✅ Determinista
@@ -303,6 +305,22 @@ Ver más casos en [`DEVELOPMENT.md`](PeluqueriaSystem/DEVELOPMENT.md)
 ```
 Entrada:  "MiClave1234"
 Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9="
+```
+
+#### MD5 (Auxiliar)
+- **Algoritmo:** MD5 (hash de 128 bits)
+- **Output:** Hexadecimal (32 caracteres)
+- **Clase:** `Encriptar`
+- **Método:** `static string CreateMD5(string input)`
+- **Características:**
+  - ✅ Hash unidireccional
+  - ✅ Determinista
+  - ⚠️ Menos seguro que SHA256 (uso educativo/legacy)
+
+**Ejemplo:**
+```csharp
+string hash = Encriptar.CreateMD5("MiClave1234");
+// Resultado: "0871A29869FB7B8B58235C472213C23E"
 ```
 
 ### Prevención de Inyección SQL
