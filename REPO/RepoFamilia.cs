@@ -152,22 +152,19 @@ namespace REPO
             try
             {
                 using SqlCommand cmd = new();
-                // Primero verificar si existe en Opciones (Patente)
-                cmd.CommandText = "SELECT COUNT(*) FROM Opciones WHERE ID = @ID";
+                // Usar un solo query con UNION para verificar en ambas tablas
+                cmd.CommandText = @"
+                    SELECT 'P' AS Tipo FROM Opciones WHERE ID = @ID
+                    UNION ALL
+                    SELECT 'F' AS Tipo FROM Familia WHERE ID = @ID";
                 cmd.Connection = dataAccess.AbrirConexion();
                 cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = idElemento;
 
-                var count = (int)cmd.ExecuteScalar()!;
-                if (count > 0)
-                    return "P"; // Patente
+                using SqlDataReader dr = dataAccess.EjecutarSQL(cmd);
+                if (dr.Read())
+                    return dr["Tipo"]?.ToString() ?? string.Empty;
 
-                // Si no existe en Opciones, debe ser una Familia
-                cmd.CommandText = "SELECT COUNT(*) FROM Familia WHERE ID = @ID";
-                count = (int)cmd.ExecuteScalar()!;
-                if (count > 0)
-                    return "F"; // Familia
-
-                throw new InvalidOperationException($"Elemento con ID {idElemento} no encontrado en Opciones ni en Familia");
+                throw new InvalidOperationException($"Element with ID {idElemento} not found in Options or Family tables");
             }
             finally
             {
@@ -240,6 +237,9 @@ namespace REPO
                             Nombre = dr["Nombre"]?.ToString() ?? string.Empty
                         };
                         // Cargar recursivamente los elementos de esta familia hija
+                        // Nota: Para jerarquías muy profundas, considerar usar CTE (Common Table Expression)
+                        // para evitar N+1 queries. La implementación actual es adecuada para jerarquías
+                        // pequeñas (2-3 niveles) que son típicas en sistemas de permisos.
                         var subElementos = TraerElementosDeFamilia(familia.ID);
                         subElementos.ForEach(familia.Agregar);
                         elemento = familia;
