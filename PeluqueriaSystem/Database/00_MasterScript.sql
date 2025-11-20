@@ -1,12 +1,12 @@
 -- =============================================
--- Script Maestro: Ejecución Completa
--- Descripción: Ejecuta todos los scripts en el orden correcto
+-- Script Maestro: Ejecuciï¿½n Completa
+-- Descripciï¿½n: Ejecuta todos los scripts en el orden correcto
 -- Uso: Ejecutar este script para crear la BD completa
 -- =============================================
 
 PRINT '========================================';
-PRINT 'SISTEMA DE GESTIÓN PELUQUERÍA';
-PRINT 'Script de Creación de Base de Datos';
+PRINT 'SISTEMA DE GESTIï¿½N PELUQUERï¿½A';
+PRINT 'Script de Creaciï¿½n de Base de Datos';
 PRINT '========================================';
 PRINT '';
 GO
@@ -84,6 +84,30 @@ PRINT '========================================';
 GO
 
 -- =============================================
+-- PASO 7: CREAR TABLAS DE PATENTES Y FAMILIAS
+-- =============================================
+PRINT '>>> PASO 7: CREANDO TABLAS DE PATENTES Y FAMILIAS...';
+PRINT '';
+
+:r 07_CreatePatenteFamiliaTables.sql
+
+PRINT '';
+PRINT '========================================';
+GO
+
+-- =============================================
+-- PASO 8: INSERTAR DATOS INICIALES DE PATENTES Y FAMILIAS
+-- =============================================
+PRINT '>>> PASO 8: INSERTANDO DATOS INICIALES DE PATENTES Y FAMILIAS...';
+PRINT '';
+
+:r 08_SeedPatenteFamilia.sql
+
+PRINT '';
+PRINT '========================================';
+GO
+
+-- =============================================
 -- RESUMEN FINAL
 -- =============================================
 PRINT '';
@@ -92,13 +116,16 @@ PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
 PRINT 'Base de datos: PeluSystem';
-PRINT 'Tablas creadas: Rol, Estado, Usuario';
-PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado';
+PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaElemento';
+PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado, FK_FamiliaElemento_Familia';
 PRINT '';
 PRINT 'Estado de las tablas:';
 PRINT '  - Rol: 4 registros (Administrador, Supervisor, Peluquero, Cajero)';
 PRINT '  - Estado: 2 registros (Habilitado, Baja)';
-PRINT '  - Usuario: 0 registros (tabla vacía tras ejemplos)';
+PRINT '  - Usuario: 0 registros (tabla vacï¿½a tras ejemplos)';
+PRINT '  - Opciones: 18 registros (patentes del sistema)';
+PRINT '  - Familia: 8 registros (familias de permisos y roles)';
+PRINT '  - FamiliaElemento: 28 registros (relaciones composite)';
 PRINT '';
 PRINT '========================================';
 GO

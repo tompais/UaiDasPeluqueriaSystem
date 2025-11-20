@@ -13,6 +13,27 @@
 
 ---
 
+## 🧩 Sistema de Permisos (Patrón Composite)
+
+El sistema implementa un modelo de permisos flexible basado en el **patrón Composite**:
+
+### Entidades
+
+- **Patente**: Permiso individual (ej: Usuario_Alta, Cliente_Consultar)
+- **Familia**: Agrupación de patentes y/o familias (ej: Familia_Usuarios, Rol_Administrador)
+- **FamiliaElemento**: Relación muchos-a-muchos que permite la estructura composite
+
+### Características
+
+- Jerarquía recursiva de permisos
+- Uso de LINQ para navegación de la estructura
+- Aplicación de principios SOLID y Clean Code
+- Base de datos con soporte para relaciones composite
+
+Ver `DEVELOPMENT.md` para documentación detallada del patrón.
+
+---
+
 ## ?? Seguridad
 
 - **Hash de claves**: MD5 (hash unidireccional)

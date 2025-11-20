@@ -360,6 +360,180 @@ PRINT '========================================';
 GO
 
 -- =============================================
+-- PASO 7: CREAR TABLAS DE PATENTES Y FAMILIAS
+-- =============================================
+PRINT '>>> PASO 7: CREANDO TABLAS DE PATENTES Y FAMILIAS...';
+PRINT '';
+
+-- 1. TABLA OPCIONES (Patentes)
+PRINT 'Creando tabla Opciones...';
+
+IF OBJECT_ID('[dbo].[Opciones]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Opciones];
+    PRINT '  ? Tabla Opciones eliminada (ya existía)';
+END
+GO
+
+CREATE TABLE [dbo].[Opciones] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [Nombre] VARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Opciones] PRIMARY KEY CLUSTERED ([ID] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+) ON [PRIMARY];
+GO
+
+PRINT '? Tabla Opciones creada correctamente';
+GO
+
+-- 2. TABLA FAMILIA
+PRINT 'Creando tabla Familia...';
+
+IF OBJECT_ID('[dbo].[Familia]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Familia];
+    PRINT '  ? Tabla Familia eliminada (ya existía)';
+END
+GO
+
+CREATE TABLE [dbo].[Familia] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [Nombre] VARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Familia] PRIMARY KEY CLUSTERED ([ID] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+) ON [PRIMARY];
+GO
+
+PRINT '? Tabla Familia creada correctamente';
+GO
+
+-- 3. TABLA FAMILIAELEMENTOS (Relación Composite)
+PRINT 'Creando tabla FamiliaElemento...';
+
+IF OBJECT_ID('[dbo].[FamiliaElemento]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[FamiliaElemento];
+    PRINT '  ? Tabla FamiliaElemento eliminada (ya existía)';
+END
+GO
+
+CREATE TABLE [dbo].[FamiliaElemento] (
+    [IDFamilia] INT NOT NULL,
+    [IDElemento] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY],
+    CONSTRAINT [FK_FamiliaElemento_Familia] FOREIGN KEY ([IDFamilia]) 
+        REFERENCES [dbo].[Familia]([ID])
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ON [PRIMARY];
+GO
+
+PRINT '? Tabla FamiliaElemento creada correctamente';
+PRINT '';
+PRINT '========================================';
+GO
+
+-- =============================================
+-- PASO 8: INSERTAR DATOS INICIALES DE PATENTES Y FAMILIAS
+-- =============================================
+PRINT '>>> PASO 8: INSERTANDO DATOS INICIALES DE PATENTES Y FAMILIAS...';
+PRINT '';
+
+-- Insertar Patentes (Opciones)
+PRINT 'Insertando patentes iniciales...';
+
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Usuario_Alta');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Usuario_Baja');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Usuario_Modificar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Usuario_Consultar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Cliente_Alta');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Cliente_Baja');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Cliente_Modificar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Cliente_Consultar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Turno_Alta');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Turno_Baja');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Turno_Modificar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Turno_Consultar');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Reporte_Ventas');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Reporte_Turnos');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Reporte_Clientes');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Sistema_Configuracion');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Sistema_Backup');
+INSERT INTO [dbo].[Opciones] ([Nombre]) VALUES ('Sistema_Restore');
+
+PRINT '? Patentes insertadas correctamente';
+GO
+
+-- Insertar Familias
+PRINT 'Insertando familias iniciales...';
+
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Familia_Usuarios');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Familia_Clientes');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Familia_Turnos');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Familia_Reportes');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Familia_Sistema');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Rol_Empleado');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Rol_Supervisor');
+INSERT INTO [dbo].[Familia] ([Nombre]) VALUES ('Rol_Administrador');
+
+PRINT '? Familias insertadas correctamente';
+GO
+
+-- Asignar Patentes a Familias
+PRINT 'Asignando patentes a familias...';
+
+-- Familia Usuarios
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
+-- Familia Clientes
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (2, 5), (2, 6), (2, 7), (2, 8);
+-- Familia Turnos
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (3, 9), (3, 10), (3, 11), (3, 12);
+-- Familia Reportes
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (4, 13), (4, 14), (4, 15);
+-- Familia Sistema
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (5, 16), (5, 17), (5, 18);
+
+PRINT '? Patentes asignadas a familias correctamente';
+GO
+
+-- Asignar Familias a Roles (COMPOSITE)
+PRINT 'Asignando familias a roles...';
+
+-- Rol Empleado: Clientes y Turnos
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (6, 2), (6, 3);
+-- Rol Supervisor: Empleado + Reportes
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (7, 6), (7, 4);
+-- Rol Administrador: Supervisor + Usuarios + Sistema
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (8, 7), (8, 1), (8, 5);
+
+PRINT '? Familias asignadas a roles correctamente';
+PRINT '';
+PRINT '========================================';
+GO
+
+-- =============================================
 -- RESUMEN FINAL
 -- =============================================
 PRINT '';
@@ -368,13 +542,16 @@ PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
 PRINT 'Base de datos: PeluSystem';
-PRINT 'Tablas creadas: Rol, Estado, Usuario';
-PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado';
+PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaElemento';
+PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado, FK_FamiliaElemento_Familia';
 PRINT '';
 PRINT 'Estado de las tablas:';
 PRINT '  - Rol: 4 registros (Administrador, Supervisor, Peluquero, Cajero)';
 PRINT '  - Estado: 2 registros (Habilitado, Baja)';
 PRINT '  - Usuario: 0 registros (tabla vac�a tras ejemplos)';
+PRINT '  - Opciones: 18 registros (patentes del sistema)';
+PRINT '  - Familia: 8 registros (familias de permisos y roles)';
+PRINT '  - FamiliaElemento: 28 registros (relaciones composite)';
 PRINT '';
 PRINT '========================================';
 PRINT '';
