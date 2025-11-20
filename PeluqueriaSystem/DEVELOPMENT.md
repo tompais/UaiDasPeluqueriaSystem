@@ -820,12 +820,15 @@ CREATE TABLE [dbo].[Familia] (
 CREATE TABLE [dbo].[FamiliaElemento] (
     [IDFamilia] INT NOT NULL,
     [IDElemento] INT NOT NULL,
-    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY ([IDFamilia], [IDElemento]),
+    [TipoElemento] CHAR(1) NOT NULL CHECK ([TipoElemento] IN ('P', 'F')),
+    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY ([IDFamilia], [IDElemento], [TipoElemento]),
     CONSTRAINT [FK_FamiliaElemento_Familia] FOREIGN KEY ([IDFamilia]) 
         REFERENCES [dbo].[Familia]([ID])
         ON DELETE CASCADE ON UPDATE CASCADE
 );
 ```
+
+> **Nota:** El campo `TipoElemento` es un discriminador que indica si el elemento es una Patente ('P') o una Familia ('F'), evitando ambigüedad cuando ambos tienen el mismo ID.
 
 ### Capas de Implementación
 

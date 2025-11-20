@@ -87,10 +87,12 @@ GO
 -- Crear tabla FamiliaElemento
 -- Esta tabla permite la relación muchos a muchos entre Familias y Elementos
 -- Un elemento puede ser una Patente (Opciones) o una Familia (recursivo)
+-- TipoElemento: 'P' = Patente (Opciones), 'F' = Familia
 CREATE TABLE [dbo].[FamiliaElemento] (
     [IDFamilia] INT NOT NULL,
     [IDElemento] INT NOT NULL,
-    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC)
+    [TipoElemento] CHAR(1) NOT NULL CHECK ([TipoElemento] IN ('P', 'F')),
+    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC, [TipoElemento] ASC)
     WITH (
         PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,

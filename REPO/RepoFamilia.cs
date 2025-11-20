@@ -125,17 +125,49 @@ namespace REPO
 
         public void AsignarElemento(int idFamilia, int idElemento)
         {
+            // Determinar el tipo de elemento consultando las tablas
+            var tipoElemento = DeterminarTipoElemento(idElemento);
+            
             try
             {
                 using SqlCommand cmd = new();
-                cmd.CommandText = @"INSERT INTO FamiliaElemento (IDFamilia, IDElemento) 
-                                   VALUES (@IDFamilia, @IDElemento)";
+                cmd.CommandText = @"INSERT INTO FamiliaElemento (IDFamilia, IDElemento, TipoElemento) 
+                                   VALUES (@IDFamilia, @IDElemento, @TipoElemento)";
                 cmd.Connection = dataAccess.AbrirConexion();
 
                 cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
                 cmd.Parameters.Add("@IDElemento", System.Data.SqlDbType.Int).Value = idElemento;
+                cmd.Parameters.Add("@TipoElemento", System.Data.SqlDbType.Char, 1).Value = tipoElemento;
 
                 cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
+        private string DeterminarTipoElemento(int idElemento)
+        {
+            try
+            {
+                using SqlCommand cmd = new();
+                // Primero verificar si existe en Opciones (Patente)
+                cmd.CommandText = "SELECT COUNT(*) FROM Opciones WHERE ID = @ID";
+                cmd.Connection = dataAccess.AbrirConexion();
+                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = idElemento;
+
+                var count = (int)cmd.ExecuteScalar()!;
+                if (count > 0)
+                    return "P"; // Patente
+
+                // Si no existe en Opciones, debe ser una Familia
+                cmd.CommandText = "SELECT COUNT(*) FROM Familia WHERE ID = @ID";
+                count = (int)cmd.ExecuteScalar()!;
+                if (count > 0)
+                    return "F"; // Familia
+
+                throw new InvalidOperationException($"Elemento con ID {idElemento} no encontrado en Opciones ni en Familia");
             }
             finally
             {
@@ -148,6 +180,7 @@ namespace REPO
             try
             {
                 using SqlCommand cmd = new();
+                // Eliminar sin importar el tipo (TipoElemento es parte de la clave primaria pero no necesario para DELETE)
                 cmd.CommandText = @"DELETE FROM FamiliaElemento 
                                    WHERE IDFamilia = @IDFamilia AND IDElemento = @IDElemento";
                 cmd.Connection = dataAccess.AbrirConexion();
@@ -170,16 +203,17 @@ namespace REPO
             try
             {
                 using SqlCommand cmd = new();
+                // Usar TipoElemento para determinar si es Patente o Familia sin ambigüedad
                 cmd.CommandText = @"
                     SELECT O.ID, O.Nombre, 'Patente' AS Tipo
                     FROM FamiliaElemento FE
                     INNER JOIN Opciones O ON FE.IDElemento = O.ID
-                    WHERE FE.IDFamilia = @IDFamilia
+                    WHERE FE.IDFamilia = @IDFamilia AND FE.TipoElemento = 'P'
                     UNION ALL
                     SELECT F.ID, F.Nombre, 'Familia' AS Tipo
                     FROM FamiliaElemento FE
                     INNER JOIN Familia F ON FE.IDElemento = F.ID
-                    WHERE FE.IDFamilia = @IDFamilia";
+                    WHERE FE.IDFamilia = @IDFamilia AND FE.TipoElemento = 'F'";
                 cmd.Connection = dataAccess.AbrirConexion();
                 cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
 

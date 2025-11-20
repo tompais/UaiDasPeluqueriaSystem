@@ -434,7 +434,8 @@ GO
 CREATE TABLE [dbo].[FamiliaElemento] (
     [IDFamilia] INT NOT NULL,
     [IDElemento] INT NOT NULL,
-    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC)
+    [TipoElemento] CHAR(1) NOT NULL CHECK ([TipoElemento] IN ('P', 'F')),
+    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC, [TipoElemento] ASC)
     WITH (
         PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,
@@ -504,16 +505,16 @@ GO
 -- Asignar Patentes a Familias
 PRINT 'Asignando patentes a familias...';
 
--- Familia Usuarios
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
+-- Familia Usuarios (P = Patente)
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (1, 1, 'P'), (1, 2, 'P'), (1, 3, 'P'), (1, 4, 'P');
 -- Familia Clientes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (2, 5), (2, 6), (2, 7), (2, 8);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (2, 5, 'P'), (2, 6, 'P'), (2, 7, 'P'), (2, 8, 'P');
 -- Familia Turnos
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (3, 9), (3, 10), (3, 11), (3, 12);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (3, 9, 'P'), (3, 10, 'P'), (3, 11, 'P'), (3, 12, 'P');
 -- Familia Reportes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (4, 13), (4, 14), (4, 15);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (4, 13, 'P'), (4, 14, 'P'), (4, 15, 'P');
 -- Familia Sistema
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (5, 16), (5, 17), (5, 18);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (5, 16, 'P'), (5, 17, 'P'), (5, 18, 'P');
 
 PRINT '? Patentes asignadas a familias correctamente';
 GO
@@ -521,12 +522,12 @@ GO
 -- Asignar Familias a Roles (COMPOSITE)
 PRINT 'Asignando familias a roles...';
 
--- Rol Empleado: Clientes y Turnos
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (6, 2), (6, 3);
+-- Rol Empleado: Clientes y Turnos (F = Familia)
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (6, 2, 'F'), (6, 3, 'F');
 -- Rol Supervisor: Empleado + Reportes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (7, 6), (7, 4);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (7, 6, 'F'), (7, 4, 'F');
 -- Rol Administrador: Supervisor + Usuarios + Sistema
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento]) VALUES (8, 7), (8, 1), (8, 5);
+INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (8, 7, 'F'), (8, 1, 'F'), (8, 5, 'F');
 
 PRINT '? Familias asignadas a roles correctamente';
 PRINT '';
