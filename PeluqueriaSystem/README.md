@@ -99,7 +99,7 @@ PeluqueriaSystem.sln
 │
 ├── DOM/ # 📦 Entidades del dominio (DomUsuario, enums)
 ├── ABS/        # 🔌 Interfaces y abstracciones
-├── SERV/    # ⚙️ Servicios auxiliares (EncriptacionService)
+├── SERV/    # ⚙️ Servicios auxiliares (Encriptar)
 ├── CONTEXT/       # 🗄️ Acceso a datos SQL Server (DalSQLServer)
 ├── REPO/       # 💾 Repositorio CRUD (RepoUsuario)
 ├── APP/           # 🧠 Lógica de negocio (AppUsuario)
@@ -116,7 +116,7 @@ PeluqueriaSystem.sln
      ↓
     APP (AppUsuario)
       ↓
-    REPO (RepoUsuario) + SERV (EncriptacionService)
+    REPO (RepoUsuario) + SERV (Encriptar)
      ↓
     CONTEXT (DalSQLServer)
        ↓
@@ -150,7 +150,7 @@ PeluqueriaSystem.sln
 | 📊 **DataGridView** | Listado profesional con columnas configurables |
 | ✏️ **Modo Alta/Modificación** | Un solo formulario para ambas operaciones |
 | ✅ **Validaciones robustas** | En UI y en lógica de negocio |
-| 🔐 **Encriptación SHA256** | Claves hasheadas (44 caracteres Base64) |
+| 🔐 **Encriptación MD5** | Claves hasheadas (32 caracteres hexadecimales) |
 | 📧 **Email único** | Validación con exclusión de ID en modificación |
 | 🔢 **IDs autogenerados** | Gestionados por SQL Server (IDENTITY) |
 | 📅 **Auditoría** | FechaAgregar y FechaModificacion automáticas |
@@ -165,7 +165,7 @@ PeluqueriaSystem.sln
 | **Nombre** | varchar | 50 | Obligatorio |
 | **Apellido** | varchar | 80 | Obligatorio |
 | **Email** | varchar | 180 | Formato válido, único |
-| **Clave** | varchar | 64 | **11 caracteres** (hasheada a 44) |
+| **Clave** | varchar | 64 | **11 caracteres** (hasheada a 32) |
 | **Rol** | int | - | 0-3 (Cliente/Empleado/Supervisor/Admin) |
 | **Estado** | int | - | 0-1 (Activo/Baja) |
 | **DV** | varchar | 50 | Dígito verificador |
@@ -181,7 +181,7 @@ PeluqueriaSystem.sln
 - **S**ingle Responsibility: Cada clase tiene una única responsabilidad
   - `RepoUsuario`: Solo operaciones de BD
   - `AppUsuario`: Solo lógica de negocio
-  - `EncriptacionService`: Solo encriptación
+  - `Encriptar`: Solo encriptación MD5
   
 - **O**pen/Closed: Extensible mediante interfaces sin modificar código
   - Se puede cambiar de SQL Server a otro provider sin afectar APP
@@ -190,7 +190,7 @@ PeluqueriaSystem.sln
   - Cualquier `IUsuarioDbRepository` funciona igual
   
 - **I**nterface Segregation: Interfaces específicas y cohesivas
-  - `IDataAccess`, `IUsuarioDbRepository`, `IEncriptacionService` separadas
+  - `IDataAccess`, `IUsuarioDbRepository` separadas
   
 - **D**ependency Inversion: Dependencias mediante abstracciones
   - APP depende de `IUsuarioDbRepository`, no de `RepoUsuario`
@@ -291,18 +291,27 @@ Ver más casos en [`DEVELOPMENT.md`](PeluqueriaSystem/DEVELOPMENT.md)
 
 ### Encriptación de Claves
 
-- **Algoritmo:** SHA256 (hash unidireccional de 256 bits)
-- **Output:** Base64 (44 caracteres)
+#### Clase Encriptar (MD5)
+- **Algoritmo:** MD5 (hash de 128 bits)
+- **Output:** Hexadecimal (32 caracteres)
+- **Clase:** `Encriptar`
+- **Método:** `static string CreateMD5(string input)`
 - **Características:**
   - ✅ Hash unidireccional (no reversible)
   - ✅ Determinista
-  - ✅ Resistente a colisiones
   - ⚠️ Sin salt (contexto educativo)
 
 **Ejemplo:**
 ```
-Entrada:  "MiClave1234"
-Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9="
+Entrada:  "MiClave1234" (11 caracteres)
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
+```
+
+**Uso:**
+```csharp
+// Usado directamente por AppUsuario para encriptar contraseñas
+string hash = Encriptar.CreateMD5("MiClave1234");
+// Resultado: "0871A29869FB7B8B58235C472213C23E"
 ```
 
 ### Prevención de Inyección SQL

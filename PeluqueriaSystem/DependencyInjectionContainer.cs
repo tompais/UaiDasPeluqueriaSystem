@@ -1,11 +1,9 @@
 using ABS.Context;
 using ABS.Repositories;
-using ABS.Services;
 using APP;
 using CONTEXT;
 using Microsoft.Extensions.DependencyInjection;
 using REPO;
-using SERV;
 
 namespace PeluqueriaSystem;
 
@@ -27,7 +25,6 @@ public static class DependencyInjectionContainer
         services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
 
         // Servicios de aplicación
-        services.AddScoped<IEncriptacionService, EncriptacionService>();
         services.AddScoped<AppUsuario>();
 
         // Formularios

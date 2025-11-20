@@ -95,7 +95,7 @@ CREATE TABLE [dbo].[Usuario] (
     [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
-    [Clave] VARCHAR(64) NULL,  -- Aumentado a 64 para soportar hashes SHA256 (44 caracteres en Base64)
+    [Clave] VARCHAR(64) NULL,  -- Aumentado a 64 para soportar hashes MD5 (32 caracteres hexadecimales)
     [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
     [FechaModificacion] DATETIME NULL,

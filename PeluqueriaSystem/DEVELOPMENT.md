@@ -51,8 +51,8 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
      ↓    ↓
 ┌──────────────┐  ┌──────────────────────┐
 │ REPO       │  │ SERV                 │
-│ - RepoUsuario│  │ - EncriptacionService│
-│   * Traer()  │  │   * Encriptar()      │
+│ - RepoUsuario│  │ - Encriptar          │
+│   * Traer()  │  │   * CreateMD5()      │
 │   * TraerPorId│  └──────────────────────┘
 │   * Crear()  │
 │   * Modificar│
@@ -99,7 +99,6 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 │ ABS (Abstracciones)│
 │ - IUsuarioDbRepository│
 │ - IDataAccess   │
-│ - IEncriptacionService│
 └──────────────────┘
 ```
 
@@ -109,7 +108,7 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 |----------|------|----------------|--------------|
 | **DOM** | Class Library | Entidades del dominio (DomUsuario, enums) | Ninguna |
 | **ABS** | Class Library | Interfaces y abstracciones | DOM |
-| **SERV** | Class Library | Servicios auxiliares (encriptación SHA256) | ABS |
+| **SERV** | Class Library | Servicios auxiliares (encriptación MD5) | ABS |
 | **CONTEXT** | Class Library | Acceso a datos SQL Server (DalSQLServer) | ABS, Microsoft.Data.SqlClient |
 | **REPO** | Class Library | Repositorio CRUD (RepoUsuario) | ABS, CONTEXT, DOM, Microsoft.Data.SqlClient |
 | **APP** | Class Library | Lógica de negocio (AppUsuario) | ABS, DOM, REPO, SERV |
@@ -134,8 +133,8 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 - `RepoUsuario`: Solo maneja persistencia SQL
   - Cambiaría si: Las operaciones de BD cambian
   
-- `EncriptacionService`: Solo encripta datos
-  - Cambiaría si: El algoritmo de encriptación cambia
+- `Encriptar`: Solo encripta datos con MD5
+  - Cambiaría si: El algoritmo MD5 cambia
 
 - `DalSQLServer`: Solo maneja conexiones SQL
   - Cambiaría si: La forma de conectar a SQL Server cambia
@@ -199,10 +198,9 @@ public static class DependencyInjectionContainer
         // Scoped - Nueva instancia por operación
         services.AddScoped<IDataAccess, DalSQLServer>();
         services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
-        services.AddScoped<IEncriptacionService, EncriptacionService>();
-     services.AddScoped<AppUsuario>();
+        services.AddScoped<AppUsuario>();
 
-    // Transient - Nueva instancia cada vez
+        // Transient - Nueva instancia cada vez
         services.AddTransient<FormPrincipal>();
         services.AddTransient<FormUsuarios>();
         services.AddTransient<FormAltaUsuario>();
@@ -229,7 +227,7 @@ public static class DependencyInjectionContainer
 Usuario → FormAltaUsuario (ID=0) → AppUsuario.Crear()
   → Validar datos
   → ExisteEmail()
-  → Encriptar clave (SHA256)
+  → Encriptar clave (MD5)
   → RepoUsuario.Crear()
     → INSERT INTO Usuario
   → Retornar usuario con ID
@@ -326,18 +324,24 @@ public void Eliminar(int id)
 
 ## 🔐 Seguridad
 
-### Encriptación de Claves SHA256
+### Encriptación de Claves
+
+#### Clase Encriptar (MD5)
 
 ```csharp
-public class EncriptacionService : IEncriptacionService
+public class Encriptar()
 {
-    public string Encriptar(string textoPlano)
+    public static string CreateMD5(string input)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(textoPlano);
-  
-        var bytes = Encoding.UTF8.GetBytes(textoPlano);
-var hash = SHA256.HashData(bytes);
-        return Convert.ToBase64String(hash);
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+        StringBuilder sb = new();
+        foreach (byte b in hashBytes)
+            sb.Append(b.ToString("X2"));
+
+        return sb.ToString();
     }
 }
 ```
@@ -345,7 +349,13 @@ var hash = SHA256.HashData(bytes);
 **Ejemplo:**
 ```
 Entrada:  "MiClave1234" (11 caracteres)
-Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9=" (44 caracteres Base64)
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
+```
+
+**Uso en el sistema:**
+```csharp
+// Usado directamente por AppUsuario para encriptar contraseñas
+string hash = Encriptar.CreateMD5("MiClave1234");
 ```
 
 ### Prevención de Inyección SQL
@@ -397,7 +407,7 @@ CREATE TABLE [dbo].[Usuario] (
   [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
-    [Clave] VARCHAR(64) NULL,  -- SHA256 Base64 = 44 caracteres
+    [Clave] VARCHAR(64) NULL,  -- MD5 hexadecimal = 32 caracteres
  [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
     [FechaModificacion] DATETIME NULL,
