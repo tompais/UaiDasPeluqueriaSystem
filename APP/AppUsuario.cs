@@ -1,9 +1,9 @@
 using ABS.Repositories;
-using ABS.Services;
+using SERV;
 
 namespace APP
 {
-    public class AppUsuario(IUsuarioDbRepository repository, IEncriptacionService encriptacionService)
+    public class AppUsuario(IUsuarioDbRepository repository)
     {
         public List<DOM.DomUsuario> Traer() => repository.Traer();
 
@@ -16,7 +16,7 @@ namespace APP
                 Nombre = nombre.Trim(),
                 Apellido = apellido.Trim(),
                 Email = email.Trim().ToLowerInvariant(),
-                Clave = encriptacionService.Encriptar(clave),
+                Clave = Encriptar.CreateMD5(clave),
                 Rol = rol,
                 Estado = DOM.DomUsuario.EstadoUsuario.Activo,
                 DV = "" // Dígito verificador - por ahora vacío
@@ -45,7 +45,7 @@ namespace APP
                 // Si se proporciona una nueva clave, la encripta; si no, mantiene la existente
                 Clave = string.IsNullOrWhiteSpace(clave) 
                     ? usuarioExistente.Clave 
-                    : encriptacionService.Encriptar(clave),
+                    : Encriptar.CreateMD5(clave),
                 Rol = rol,
                 Estado = estado,
                 DV = usuarioExistente.DV,

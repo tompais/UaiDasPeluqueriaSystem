@@ -99,7 +99,7 @@ PeluqueriaSystem.sln
 │
 ├── DOM/ # 📦 Entidades del dominio (DomUsuario, enums)
 ├── ABS/        # 🔌 Interfaces y abstracciones
-├── SERV/    # ⚙️ Servicios auxiliares (EncriptacionService, Encriptar)
+├── SERV/    # ⚙️ Servicios auxiliares (Encriptar)
 ├── CONTEXT/       # 🗄️ Acceso a datos SQL Server (DalSQLServer)
 ├── REPO/       # 💾 Repositorio CRUD (RepoUsuario)
 ├── APP/           # 🧠 Lógica de negocio (AppUsuario)
@@ -116,7 +116,7 @@ PeluqueriaSystem.sln
      ↓
     APP (AppUsuario)
       ↓
-    REPO (RepoUsuario) + SERV (EncriptacionService)
+    REPO (RepoUsuario) + SERV (Encriptar)
      ↓
     CONTEXT (DalSQLServer)
        ↓
@@ -181,7 +181,7 @@ PeluqueriaSystem.sln
 - **S**ingle Responsibility: Cada clase tiene una única responsabilidad
   - `RepoUsuario`: Solo operaciones de BD
   - `AppUsuario`: Solo lógica de negocio
-  - `EncriptacionService`: Solo encriptación
+  - `Encriptar`: Solo encriptación MD5
   
 - **O**pen/Closed: Extensible mediante interfaces sin modificar código
   - Se puede cambiar de SQL Server a otro provider sin afectar APP
@@ -190,7 +190,7 @@ PeluqueriaSystem.sln
   - Cualquier `IUsuarioDbRepository` funciona igual
   
 - **I**nterface Segregation: Interfaces específicas y cohesivas
-  - `IDataAccess`, `IUsuarioDbRepository`, `IEncriptacionService` separadas
+  - `IDataAccess`, `IUsuarioDbRepository` separadas
   
 - **D**ependency Inversion: Dependencias mediante abstracciones
   - APP depende de `IUsuarioDbRepository`, no de `RepoUsuario`
@@ -291,10 +291,11 @@ Ver más casos en [`DEVELOPMENT.md`](PeluqueriaSystem/DEVELOPMENT.md)
 
 ### Encriptación de Claves
 
-#### MD5 (Principal)
+#### Clase Encriptar (MD5)
 - **Algoritmo:** MD5 (hash de 128 bits)
 - **Output:** Hexadecimal (32 caracteres)
-- **Clase:** `EncriptacionService`
+- **Clase:** `Encriptar`
+- **Método:** `static string CreateMD5(string input)`
 - **Características:**
   - ✅ Hash unidireccional (no reversible)
   - ✅ Determinista
@@ -308,17 +309,7 @@ Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
 
 **Uso:**
 ```csharp
-// A través del servicio de encriptación (usado por AppUsuario)
-string hash = encriptacionService.Encriptar("MiClave1234");
-```
-
-#### Clase auxiliar Encriptar
-- **Clase:** `Encriptar`
-- **Método:** `static string CreateMD5(string input)`
-- Proporciona acceso estático al mismo algoritmo MD5 para casos de uso auxiliares
-
-**Ejemplo:**
-```csharp
+// Usado directamente por AppUsuario para encriptar contraseñas
 string hash = Encriptar.CreateMD5("MiClave1234");
 // Resultado: "0871A29869FB7B8B58235C472213C23E"
 ```

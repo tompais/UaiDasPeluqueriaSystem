@@ -51,11 +51,11 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
      ↓    ↓
 ┌──────────────┐  ┌──────────────────────┐
 │ REPO       │  │ SERV                 │
-│ - RepoUsuario│  │ - EncriptacionService│
-│   * Traer()  │  │   * Encriptar()      │
-│   * TraerPorId│  │ - Encriptar          │
-│   * Crear()  │  │   * CreateMD5()      │
-│   * Modificar│  └──────────────────────┘
+│ - RepoUsuario│  │ - Encriptar          │
+│   * Traer()  │  │   * CreateMD5()      │
+│   * TraerPorId│  └──────────────────────┘
+│   * Crear()  │
+│   * Modificar│
 │   * Eliminar │
 │   * ExisteEmail│
 └──────────────┘
@@ -99,7 +99,6 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 │ ABS (Abstracciones)│
 │ - IUsuarioDbRepository│
 │ - IDataAccess   │
-│ - IEncriptacionService│
 └──────────────────┘
 ```
 
@@ -133,9 +132,6 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
   
 - `RepoUsuario`: Solo maneja persistencia SQL
   - Cambiaría si: Las operaciones de BD cambian
-  
-- `EncriptacionService`: Solo encripta datos con MD5
-  - Cambiaría si: El algoritmo MD5 cambia
   
 - `Encriptar`: Solo encripta datos con MD5
   - Cambiaría si: El algoritmo MD5 cambia
@@ -202,10 +198,9 @@ public static class DependencyInjectionContainer
         // Scoped - Nueva instancia por operación
         services.AddScoped<IDataAccess, DalSQLServer>();
         services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
-        services.AddScoped<IEncriptacionService, EncriptacionService>();
-     services.AddScoped<AppUsuario>();
+        services.AddScoped<AppUsuario>();
 
-    // Transient - Nueva instancia cada vez
+        // Transient - Nueva instancia cada vez
         services.AddTransient<FormPrincipal>();
         services.AddTransient<FormUsuarios>();
         services.AddTransient<FormAltaUsuario>();
@@ -331,43 +326,7 @@ public void Eliminar(int id)
 
 ### Encriptación de Claves
 
-#### MD5 (Principal)
-
-```csharp
-public class EncriptacionService : IEncriptacionService
-{
-    public string Encriptar(string textoPlano)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(textoPlano);
-        
-        using MD5 md5 = MD5.Create();
-        byte[] inputBytes = Encoding.ASCII.GetBytes(textoPlano);
-        byte[] hashBytes = md5.ComputeHash(inputBytes);
-
-        StringBuilder sb = new();
-        foreach (byte b in hashBytes)
-            sb.Append(b.ToString("X2"));
-
-        return sb.ToString();
-    }
-}
-```
-
-**Ejemplo:**
-```
-Entrada:  "MiClave1234" (11 caracteres)
-Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
-```
-
-**Uso en el sistema:**
-```csharp
-// A través del servicio de encriptación (usado por AppUsuario)
-var hash = encriptacionService.Encriptar("MiClave1234");
-```
-
-#### Clase auxiliar Encriptar
-
-Proporciona acceso estático al mismo algoritmo MD5 para casos de uso auxiliares:
+#### Clase Encriptar (MD5)
 
 ```csharp
 public class Encriptar()
@@ -387,9 +346,16 @@ public class Encriptar()
 }
 ```
 
-**Uso:**
+**Ejemplo:**
+```
+Entrada:  "MiClave1234" (11 caracteres)
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
+```
+
+**Uso en el sistema:**
 ```csharp
-string hash = Encriptar.CreateMD5("texto a encriptar");
+// Usado directamente por AppUsuario para encriptar contraseñas
+string hash = Encriptar.CreateMD5("MiClave1234");
 ```
 
 ### Prevención de Inyección SQL
