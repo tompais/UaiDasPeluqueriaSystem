@@ -13,8 +13,11 @@ public interface IFamiliaDbRepository
     Familia Crear(Familia familia);
     void Modificar(Familia familia);
     void Eliminar(int id);
-    void AsignarElemento(int idFamilia, int idElemento);
-    void RemoverElemento(int idFamilia, int idElemento);
-    List<Elemento> TraerElementosDeFamilia(int idFamilia);
+    void AsignarPatente(int idFamilia, int idPatente);
+    void AsignarFamiliaHija(int idFamiliaPadre, int idFamiliaHija);
+    void RemoverPatente(int idFamilia, int idPatente);
+    void RemoverFamiliaHija(int idFamiliaPadre, int idFamiliaHija);
+    List<Patente> TraerPatentesDeFamilia(int idFamilia);
+    List<Familia> TraerFamiliasHijas(int idFamilia);
     List<Familia> CompletarLista(SqlDataReader dr, List<Familia> lista);
 }

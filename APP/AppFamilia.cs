@@ -35,13 +35,22 @@ namespace APP
 
         public void Eliminar(int id) => repository.Eliminar(id);
 
-        public void AsignarElemento(int idFamilia, int idElemento) => 
-            repository.AsignarElemento(idFamilia, idElemento);
+        public void AsignarPatente(int idFamilia, int idPatente) => 
+            repository.AsignarPatente(idFamilia, idPatente);
 
-        public void RemoverElemento(int idFamilia, int idElemento) => 
-            repository.RemoverElemento(idFamilia, idElemento);
+        public void AsignarFamiliaHija(int idFamiliaPadre, int idFamiliaHija) => 
+            repository.AsignarFamiliaHija(idFamiliaPadre, idFamiliaHija);
 
-        public List<DOM.Elemento> TraerElementosDeFamilia(int idFamilia) => 
-            repository.TraerElementosDeFamilia(idFamilia);
+        public void RemoverPatente(int idFamilia, int idPatente) => 
+            repository.RemoverPatente(idFamilia, idPatente);
+
+        public void RemoverFamiliaHija(int idFamiliaPadre, int idFamiliaHija) => 
+            repository.RemoverFamiliaHija(idFamiliaPadre, idFamiliaHija);
+
+        public List<DOM.Patente> TraerPatentesDeFamilia(int idFamilia) => 
+            repository.TraerPatentesDeFamilia(idFamilia);
+
+        public List<DOM.Familia> TraerFamiliasHijas(int idFamilia) => 
+            repository.TraerFamiliasHijas(idFamilia);
     }
 }

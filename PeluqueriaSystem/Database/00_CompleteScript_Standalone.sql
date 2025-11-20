@@ -421,21 +421,20 @@ GO
 PRINT '? Tabla Familia creada correctamente';
 GO
 
--- 3. TABLA FAMILIAELEMENTOS (Relación Composite)
-PRINT 'Creando tabla FamiliaElemento...';
+-- 3. TABLA FAMILIAPATENTE (Relación Familia-Patente)
+PRINT 'Creando tabla FamiliaPatente...';
 
-IF OBJECT_ID('[dbo].[FamiliaElemento]', 'U') IS NOT NULL
+IF OBJECT_ID('[dbo].[FamiliaPatente]', 'U') IS NOT NULL
 BEGIN
-    DROP TABLE [dbo].[FamiliaElemento];
-    PRINT '  ? Tabla FamiliaElemento eliminada (ya existía)';
+    DROP TABLE [dbo].[FamiliaPatente];
+    PRINT '  ? Tabla FamiliaPatente eliminada (ya existía)';
 END
 GO
 
-CREATE TABLE [dbo].[FamiliaElemento] (
+CREATE TABLE [dbo].[FamiliaPatente] (
     [IDFamilia] INT NOT NULL,
-    [IDElemento] INT NOT NULL,
-    [TipoElemento] CHAR(1) NOT NULL CHECK ([TipoElemento] IN ('P', 'F')),
-    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC, [TipoElemento] ASC)
+    [IDPatente] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaPatente] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDPatente] ASC)
     WITH (
         PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,
@@ -444,14 +443,50 @@ CREATE TABLE [dbo].[FamiliaElemento] (
         ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
     ) ON [PRIMARY],
-    CONSTRAINT [FK_FamiliaElemento_Familia] FOREIGN KEY ([IDFamilia]) 
+    CONSTRAINT [FK_FamiliaPatente_Familia] FOREIGN KEY ([IDFamilia]) 
         REFERENCES [dbo].[Familia]([ID])
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT [FK_FamiliaPatente_Opciones] FOREIGN KEY ([IDPatente]) 
+        REFERENCES [dbo].[Opciones]([ID])
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ON [PRIMARY];
 GO
 
-PRINT '? Tabla FamiliaElemento creada correctamente';
+PRINT '? Tabla FamiliaPatente creada correctamente';
+GO
+
+-- 4. TABLA FAMILIAFAMILIA (Relación Familia-Familia recursiva)
+PRINT 'Creando tabla FamiliaFamilia...';
+
+IF OBJECT_ID('[dbo].[FamiliaFamilia]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[FamiliaFamilia];
+    PRINT '  ? Tabla FamiliaFamilia eliminada (ya existía)';
+END
+GO
+
+CREATE TABLE [dbo].[FamiliaFamilia] (
+    [IDFamiliaPadre] INT NOT NULL,
+    [IDFamiliaHija] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaFamilia] PRIMARY KEY CLUSTERED ([IDFamiliaPadre] ASC, [IDFamiliaHija] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY],
+    CONSTRAINT [FK_FamiliaFamilia_Padre] FOREIGN KEY ([IDFamiliaPadre]) 
+        REFERENCES [dbo].[Familia]([ID]),
+    CONSTRAINT [FK_FamiliaFamilia_Hija] FOREIGN KEY ([IDFamiliaHija]) 
+        REFERENCES [dbo].[Familia]([ID])
+) ON [PRIMARY];
+GO
+
+PRINT '? Tabla FamiliaFamilia creada correctamente';
 PRINT '';
 PRINT '========================================';
 GO
@@ -505,16 +540,16 @@ GO
 -- Asignar Patentes a Familias
 PRINT 'Asignando patentes a familias...';
 
--- Familia Usuarios (P = Patente)
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (1, 1, 'P'), (1, 2, 'P'), (1, 3, 'P'), (1, 4, 'P');
+-- Familia Usuarios
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) VALUES (1, 1), (1, 2), (1, 3), (1, 4);
 -- Familia Clientes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (2, 5, 'P'), (2, 6, 'P'), (2, 7, 'P'), (2, 8, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) VALUES (2, 5), (2, 6), (2, 7), (2, 8);
 -- Familia Turnos
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (3, 9, 'P'), (3, 10, 'P'), (3, 11, 'P'), (3, 12, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) VALUES (3, 9), (3, 10), (3, 11), (3, 12);
 -- Familia Reportes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (4, 13, 'P'), (4, 14, 'P'), (4, 15, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) VALUES (4, 13), (4, 14), (4, 15);
 -- Familia Sistema
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (5, 16, 'P'), (5, 17, 'P'), (5, 18, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) VALUES (5, 16), (5, 17), (5, 18);
 
 PRINT '? Patentes asignadas a familias correctamente';
 GO
@@ -522,12 +557,12 @@ GO
 -- Asignar Familias a Roles (COMPOSITE)
 PRINT 'Asignando familias a roles...';
 
--- Rol Empleado: Clientes y Turnos (F = Familia)
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (6, 2, 'F'), (6, 3, 'F');
+-- Rol Empleado: Clientes y Turnos
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) VALUES (6, 2), (6, 3);
 -- Rol Supervisor: Empleado + Reportes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (7, 6, 'F'), (7, 4, 'F');
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) VALUES (7, 6), (7, 4);
 -- Rol Administrador: Supervisor + Usuarios + Sistema
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) VALUES (8, 7, 'F'), (8, 1, 'F'), (8, 5, 'F');
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) VALUES (8, 7), (8, 1), (8, 5);
 
 PRINT '? Familias asignadas a roles correctamente';
 PRINT '';
@@ -543,8 +578,8 @@ PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
 PRINT 'Base de datos: PeluSystem';
-PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaElemento';
-PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado, FK_FamiliaElemento_Familia';
+PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaPatente, FamiliaFamilia';
+PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado, FK_FamiliaPatente_Familia, FK_FamiliaPatente_Opciones, FK_FamiliaFamilia_Padre, FK_FamiliaFamilia_Hija';
 PRINT '';
 PRINT 'Estado de las tablas:';
 PRINT '  - Rol: 4 registros (Administrador, Supervisor, Peluquero, Cajero)';
@@ -552,7 +587,8 @@ PRINT '  - Estado: 2 registros (Habilitado, Baja)';
 PRINT '  - Usuario: 0 registros (tabla vac�a tras ejemplos)';
 PRINT '  - Opciones: 18 registros (patentes del sistema)';
 PRINT '  - Familia: 8 registros (familias de permisos y roles)';
-PRINT '  - FamiliaElemento: 28 registros (relaciones composite)';
+PRINT '  - FamiliaPatente: 18 registros (patentes asignadas a familias)';
+PRINT '  - FamiliaFamilia: 6 registros (familias anidadas)';
 PRINT '';
 PRINT '========================================';
 PRINT '';

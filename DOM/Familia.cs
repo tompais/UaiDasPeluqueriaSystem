@@ -4,39 +4,55 @@ namespace DOM
     /// Clase que representa una familia de permisos.
     /// Implementa el patrón Composite, puede contener patentes y/o otras familias.
     /// </summary>
-    public class Familia : Elemento
+    public class Familia
     {
-        private readonly List<Elemento> _elementos = [];
+        public int ID { get; set; }
+        public required string Nombre { get; set; }
+        
+        private readonly List<Patente> _patentes = [];
+        private readonly List<Familia> _familias = [];
 
         /// <summary>
-        /// Obtiene los elementos contenidos en esta familia.
+        /// Obtiene las patentes contenidas en esta familia.
         /// </summary>
-        public IReadOnlyList<Elemento> Elementos => _elementos.AsReadOnly();
+        public IReadOnlyList<Patente> Patentes => _patentes.AsReadOnly();
 
         /// <summary>
-        /// Agrega un elemento (Patente o Familia) a esta familia.
+        /// Obtiene las familias hijas contenidas en esta familia.
         /// </summary>
-        /// <param name="elemento">Elemento a agregar</param>
-        public void Agregar(Elemento elemento) => _elementos.Add(elemento);
+        public IReadOnlyList<Familia> Familias => _familias.AsReadOnly();
 
         /// <summary>
-        /// Remueve un elemento de esta familia.
+        /// Agrega una patente a esta familia.
         /// </summary>
-        /// <param name="elemento">Elemento a remover</param>
-        public void Remover(Elemento elemento) => _elementos.Remove(elemento);
+        /// <param name="patente">Patente a agregar</param>
+        public void AgregarPatente(Patente patente) => _patentes.Add(patente);
+
+        /// <summary>
+        /// Agrega una familia hija a esta familia.
+        /// </summary>
+        /// <param name="familia">Familia a agregar</param>
+        public void AgregarFamilia(Familia familia) => _familias.Add(familia);
+
+        /// <summary>
+        /// Remueve una patente de esta familia.
+        /// </summary>
+        /// <param name="patente">Patente a remover</param>
+        public void RemoverPatente(Patente patente) => _patentes.Remove(patente);
+
+        /// <summary>
+        /// Remueve una familia hija de esta familia.
+        /// </summary>
+        /// <param name="familia">Familia a remover</param>
+        public void RemoverFamilia(Familia familia) => _familias.Remove(familia);
 
         /// <summary>
         /// Limpia todos los elementos de esta familia.
         /// </summary>
-        public void Limpiar() => _elementos.Clear();
-
-        /// <summary>
-        /// Muestra la información de la familia y todos sus elementos recursivamente.
-        /// </summary>
-        public override void Mostrar()
+        public void Limpiar()
         {
-            Console.WriteLine($"Familia: {Nombre}");
-            _elementos.ForEach(e => e.Mostrar());
+            _patentes.Clear();
+            _familias.Clear();
         }
 
         /// <summary>
@@ -45,12 +61,8 @@ namespace DOM
         /// </summary>
         /// <returns>Lista de todas las patentes contenidas en esta familia</returns>
         public List<Patente> ObtenerTodasLasPatentes() =>
-            _elementos
-                .SelectMany(e => e is Patente p 
-                    ? [p] 
-                    : e is Familia f 
-                        ? f.ObtenerTodasLasPatentes() 
-                        : [])
+            _patentes
+                .Concat(_familias.SelectMany(f => f.ObtenerTodasLasPatentes()))
                 .ToList();
     }
 }

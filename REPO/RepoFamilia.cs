@@ -42,9 +42,12 @@ namespace REPO
 
                 if (familia != null)
                 {
-                    // Cargar elementos de la familia
-                    var elementos = TraerElementosDeFamilia(id);
-                    elementos.ForEach(familia.Agregar);
+                    // Cargar patentes y familias hijas
+                    var patentes = TraerPatentesDeFamilia(id);
+                    patentes.ForEach(familia.AgregarPatente);
+
+                    var familiasHijas = TraerFamiliasHijas(id);
+                    familiasHijas.ForEach(familia.AgregarFamilia);
                 }
 
                 return familia;
@@ -107,15 +110,11 @@ namespace REPO
             try
             {
                 using SqlCommand cmd = new();
-                // Primero eliminar las relaciones en FamiliaElemento
-                cmd.CommandText = "DELETE FROM FamiliaElemento WHERE IDFamilia = @ID";
+                // Las relaciones se eliminan por CASCADE en la BD
+                cmd.CommandText = "DELETE FROM Familia WHERE ID = @ID";
                 cmd.Connection = dataAccess.AbrirConexion();
                 cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = id;
                 cmd.ExecuteNonQuery();
-
-                // Luego eliminar la familia
-                cmd.CommandText = "DELETE FROM Familia WHERE ID = @ID";
-                cmd.ExecuteNonQuery();
             }
             finally
             {
@@ -123,21 +122,17 @@ namespace REPO
             }
         }
 
-        public void AsignarElemento(int idFamilia, int idElemento)
+        public void AsignarPatente(int idFamilia, int idPatente)
         {
-            // Determinar el tipo de elemento consultando las tablas
-            var tipoElemento = DeterminarTipoElemento(idElemento);
-            
             try
             {
                 using SqlCommand cmd = new();
-                cmd.CommandText = @"INSERT INTO FamiliaElemento (IDFamilia, IDElemento, TipoElemento) 
-                                   VALUES (@IDFamilia, @IDElemento, @TipoElemento)";
+                cmd.CommandText = @"INSERT INTO FamiliaPatente (IDFamilia, IDPatente) 
+                                   VALUES (@IDFamilia, @IDPatente)";
                 cmd.Connection = dataAccess.AbrirConexion();
 
                 cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
-                cmd.Parameters.Add("@IDElemento", System.Data.SqlDbType.Int).Value = idElemento;
-                cmd.Parameters.Add("@TipoElemento", System.Data.SqlDbType.Char, 1).Value = tipoElemento;
+                cmd.Parameters.Add("@IDPatente", System.Data.SqlDbType.Int).Value = idPatente;
 
                 cmd.ExecuteNonQuery();
             }
@@ -147,24 +142,19 @@ namespace REPO
             }
         }
 
-        private string DeterminarTipoElemento(int idElemento)
+        public void AsignarFamiliaHija(int idFamiliaPadre, int idFamiliaHija)
         {
             try
             {
                 using SqlCommand cmd = new();
-                // Usar un solo query con UNION para verificar en ambas tablas
-                cmd.CommandText = @"
-                    SELECT 'P' AS Tipo FROM Opciones WHERE ID = @ID
-                    UNION ALL
-                    SELECT 'F' AS Tipo FROM Familia WHERE ID = @ID";
+                cmd.CommandText = @"INSERT INTO FamiliaFamilia (IDFamiliaPadre, IDFamiliaHija) 
+                                   VALUES (@IDFamiliaPadre, @IDFamiliaHija)";
                 cmd.Connection = dataAccess.AbrirConexion();
-                cmd.Parameters.Add("@ID", System.Data.SqlDbType.Int).Value = idElemento;
 
-                using SqlDataReader dr = dataAccess.EjecutarSQL(cmd);
-                if (dr.Read())
-                    return dr["Tipo"]?.ToString() ?? string.Empty;
+                cmd.Parameters.Add("@IDFamiliaPadre", System.Data.SqlDbType.Int).Value = idFamiliaPadre;
+                cmd.Parameters.Add("@IDFamiliaHija", System.Data.SqlDbType.Int).Value = idFamiliaHija;
 
-                throw new InvalidOperationException($"Element with ID {idElemento} not found in Options or Family tables");
+                cmd.ExecuteNonQuery();
             }
             finally
             {
@@ -172,18 +162,17 @@ namespace REPO
             }
         }
 
-        public void RemoverElemento(int idFamilia, int idElemento)
+        public void RemoverPatente(int idFamilia, int idPatente)
         {
             try
             {
                 using SqlCommand cmd = new();
-                // Eliminar sin importar el tipo (TipoElemento es parte de la clave primaria pero no necesario para DELETE)
-                cmd.CommandText = @"DELETE FROM FamiliaElemento 
-                                   WHERE IDFamilia = @IDFamilia AND IDElemento = @IDElemento";
+                cmd.CommandText = @"DELETE FROM FamiliaPatente 
+                                   WHERE IDFamilia = @IDFamilia AND IDPatente = @IDPatente";
                 cmd.Connection = dataAccess.AbrirConexion();
 
                 cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
-                cmd.Parameters.Add("@IDElemento", System.Data.SqlDbType.Int).Value = idElemento;
+                cmd.Parameters.Add("@IDPatente", System.Data.SqlDbType.Int).Value = idPatente;
 
                 cmd.ExecuteNonQuery();
             }
@@ -193,24 +182,38 @@ namespace REPO
             }
         }
 
-        public List<DOM.Elemento> TraerElementosDeFamilia(int idFamilia)
+        public void RemoverFamiliaHija(int idFamiliaPadre, int idFamiliaHija)
         {
-            List<DOM.Elemento> elementos = [];
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = @"DELETE FROM FamiliaFamilia 
+                                   WHERE IDFamiliaPadre = @IDFamiliaPadre AND IDFamiliaHija = @IDFamiliaHija";
+                cmd.Connection = dataAccess.AbrirConexion();
+
+                cmd.Parameters.Add("@IDFamiliaPadre", System.Data.SqlDbType.Int).Value = idFamiliaPadre;
+                cmd.Parameters.Add("@IDFamiliaHija", System.Data.SqlDbType.Int).Value = idFamiliaHija;
+
+                cmd.ExecuteNonQuery();
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+        }
+
+        public List<DOM.Patente> TraerPatentesDeFamilia(int idFamilia)
+        {
+            List<DOM.Patente> patentes = [];
 
             try
             {
                 using SqlCommand cmd = new();
-                // Usar TipoElemento para determinar si es Patente o Familia sin ambigüedad
                 cmd.CommandText = @"
-                    SELECT O.ID, O.Nombre, 'Patente' AS Tipo
-                    FROM FamiliaElemento FE
-                    INNER JOIN Opciones O ON FE.IDElemento = O.ID
-                    WHERE FE.IDFamilia = @IDFamilia AND FE.TipoElemento = 'P'
-                    UNION ALL
-                    SELECT F.ID, F.Nombre, 'Familia' AS Tipo
-                    FROM FamiliaElemento FE
-                    INNER JOIN Familia F ON FE.IDElemento = F.ID
-                    WHERE FE.IDFamilia = @IDFamilia AND FE.TipoElemento = 'F'";
+                    SELECT O.ID, O.Nombre
+                    FROM FamiliaPatente FP
+                    INNER JOIN Opciones O ON FP.IDPatente = O.ID
+                    WHERE FP.IDFamilia = @IDFamilia";
                 cmd.Connection = dataAccess.AbrirConexion();
                 cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
 
@@ -218,34 +221,12 @@ namespace REPO
                 
                 while (dr.Read())
                 {
-                    var tipo = dr["Tipo"]?.ToString();
-                    DOM.Elemento elemento;
-
-                    if (tipo == "Patente")
+                    var patente = new DOM.Patente
                     {
-                        elemento = new DOM.Patente
-                        {
-                            ID = Convert.ToInt32(dr["ID"]),
-                            Nombre = dr["Nombre"]?.ToString() ?? string.Empty
-                        };
-                    }
-                    else
-                    {
-                        var familia = new DOM.Familia
-                        {
-                            ID = Convert.ToInt32(dr["ID"]),
-                            Nombre = dr["Nombre"]?.ToString() ?? string.Empty
-                        };
-                        // Cargar recursivamente los elementos de esta familia hija
-                        // Nota: Para jerarquías muy profundas, considerar usar CTE (Common Table Expression)
-                        // para evitar N+1 queries. La implementación actual es adecuada para jerarquías
-                        // pequeñas (2-3 niveles) que son típicas en sistemas de permisos.
-                        var subElementos = TraerElementosDeFamilia(familia.ID);
-                        subElementos.ForEach(familia.Agregar);
-                        elemento = familia;
-                    }
-
-                    elementos.Add(elemento);
+                        ID = Convert.ToInt32(dr["ID"]),
+                        Nombre = dr["Nombre"]?.ToString() ?? string.Empty
+                    };
+                    patentes.Add(patente);
                 }
             }
             finally
@@ -253,7 +234,50 @@ namespace REPO
                 dataAccess.CerrarConexion();
             }
 
-            return elementos;
+            return patentes;
+        }
+
+        public List<DOM.Familia> TraerFamiliasHijas(int idFamilia)
+        {
+            List<DOM.Familia> familias = [];
+
+            try
+            {
+                using SqlCommand cmd = new();
+                cmd.CommandText = @"
+                    SELECT F.ID, F.Nombre
+                    FROM FamiliaFamilia FF
+                    INNER JOIN Familia F ON FF.IDFamiliaHija = F.ID
+                    WHERE FF.IDFamiliaPadre = @IDFamilia";
+                cmd.Connection = dataAccess.AbrirConexion();
+                cmd.Parameters.Add("@IDFamilia", System.Data.SqlDbType.Int).Value = idFamilia;
+
+                using SqlDataReader dr = dataAccess.EjecutarSQL(cmd);
+                
+                while (dr.Read())
+                {
+                    var familiaHija = new DOM.Familia
+                    {
+                        ID = Convert.ToInt32(dr["ID"]),
+                        Nombre = dr["Nombre"]?.ToString() ?? string.Empty
+                    };
+                    
+                    // Cargar recursivamente
+                    var patentes = TraerPatentesDeFamilia(familiaHija.ID);
+                    patentes.ForEach(familiaHija.AgregarPatente);
+
+                    var subFamilias = TraerFamiliasHijas(familiaHija.ID);
+                    subFamilias.ForEach(familiaHija.AgregarFamilia);
+
+                    familias.Add(familiaHija);
+                }
+            }
+            finally
+            {
+                dataAccess.CerrarConexion();
+            }
+
+            return familias;
         }
 
         public List<DOM.Familia> CompletarLista(SqlDataReader dr, List<DOM.Familia> lista)

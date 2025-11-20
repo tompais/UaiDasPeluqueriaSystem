@@ -1,6 +1,6 @@
 -- =============================================
 -- Script: Creación de Tablas para Patentes y Familias (Patrón Composite)
--- Descripción: Crea las tablas Opciones, Familia y FamiliaElemento
+-- Descripción: Crea las tablas Opciones, Familia, FamiliaPatente y FamiliaFamilia
 -- Parte 6 - Usuario, Familia y Patente
 -- =============================================
 
@@ -72,27 +72,24 @@ PRINT '✓ Tabla Familia creada correctamente';
 GO
 
 -- =============================================
--- 3. TABLA FAMILIAELEMENTOS (Relación Composite)
+-- 3. TABLA FAMILIAPATENTE (Relación Familia-Patente)
 -- =============================================
-PRINT 'Creando tabla FamiliaElemento...';
+PRINT 'Creando tabla FamiliaPatente...';
 
 -- Eliminar tabla si existe
-IF OBJECT_ID('[dbo].[FamiliaElemento]', 'U') IS NOT NULL
+IF OBJECT_ID('[dbo].[FamiliaPatente]', 'U') IS NOT NULL
 BEGIN
-    DROP TABLE [dbo].[FamiliaElemento];
-    PRINT '  ✓ Tabla FamiliaElemento eliminada (ya existía)';
+    DROP TABLE [dbo].[FamiliaPatente];
+    PRINT '  ✓ Tabla FamiliaPatente eliminada (ya existía)';
 END
 GO
 
--- Crear tabla FamiliaElemento
--- Esta tabla permite la relación muchos a muchos entre Familias y Elementos
--- Un elemento puede ser una Patente (Opciones) o una Familia (recursivo)
--- TipoElemento: 'P' = Patente (Opciones), 'F' = Familia
-CREATE TABLE [dbo].[FamiliaElemento] (
+-- Crear tabla FamiliaPatente
+-- Relación muchos a muchos entre Familia y Opciones (Patentes)
+CREATE TABLE [dbo].[FamiliaPatente] (
     [IDFamilia] INT NOT NULL,
-    [IDElemento] INT NOT NULL,
-    [TipoElemento] CHAR(1) NOT NULL CHECK ([TipoElemento] IN ('P', 'F')),
-    CONSTRAINT [PK_FamiliaElemento] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDElemento] ASC, [TipoElemento] ASC)
+    [IDPatente] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaPatente] PRIMARY KEY CLUSTERED ([IDFamilia] ASC, [IDPatente] ASC)
     WITH (
         PAD_INDEX = OFF,
         STATISTICS_NORECOMPUTE = OFF,
@@ -101,14 +98,55 @@ CREATE TABLE [dbo].[FamiliaElemento] (
         ALLOW_PAGE_LOCKS = ON,
         OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
     ) ON [PRIMARY],
-    CONSTRAINT [FK_FamiliaElemento_Familia] FOREIGN KEY ([IDFamilia]) 
+    CONSTRAINT [FK_FamiliaPatente_Familia] FOREIGN KEY ([IDFamilia]) 
         REFERENCES [dbo].[Familia]([ID])
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    CONSTRAINT [FK_FamiliaPatente_Opciones] FOREIGN KEY ([IDPatente]) 
+        REFERENCES [dbo].[Opciones]([ID])
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ON [PRIMARY];
 GO
 
-PRINT '✓ Tabla FamiliaElemento creada correctamente';
+PRINT '✓ Tabla FamiliaPatente creada correctamente';
+GO
+
+-- =============================================
+-- 4. TABLA FAMILIAFAMILIA (Relación Familia-Familia recursiva)
+-- =============================================
+PRINT 'Creando tabla FamiliaFamilia...';
+
+-- Eliminar tabla si existe
+IF OBJECT_ID('[dbo].[FamiliaFamilia]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[FamiliaFamilia];
+    PRINT '  ✓ Tabla FamiliaFamilia eliminada (ya existía)';
+END
+GO
+
+-- Crear tabla FamiliaFamilia
+-- Relación muchos a muchos auto-referencial (Familia puede contener otras Familias)
+CREATE TABLE [dbo].[FamiliaFamilia] (
+    [IDFamiliaPadre] INT NOT NULL,
+    [IDFamiliaHija] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaFamilia] PRIMARY KEY CLUSTERED ([IDFamiliaPadre] ASC, [IDFamiliaHija] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY],
+    CONSTRAINT [FK_FamiliaFamilia_Padre] FOREIGN KEY ([IDFamiliaPadre]) 
+        REFERENCES [dbo].[Familia]([ID]),
+    CONSTRAINT [FK_FamiliaFamilia_Hija] FOREIGN KEY ([IDFamiliaHija]) 
+        REFERENCES [dbo].[Familia]([ID])
+) ON [PRIMARY];
+GO
+
+PRINT '✓ Tabla FamiliaFamilia creada correctamente';
 GO
 
 -- =============================================
@@ -122,7 +160,8 @@ PRINT '';
 PRINT 'Tablas creadas:';
 PRINT '  - Opciones (Patentes): Permisos individuales';
 PRINT '  - Familia: Agrupación de permisos';
-PRINT '  - FamiliaElemento: Relación composite';
+PRINT '  - FamiliaPatente: Relación Familia-Patente';
+PRINT '  - FamiliaFamilia: Relación Familia-Familia (recursiva)';
 PRINT '';
 PRINT '========================================';
 GO

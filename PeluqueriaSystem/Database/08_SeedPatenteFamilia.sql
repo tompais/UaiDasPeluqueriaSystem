@@ -68,25 +68,25 @@ GO
 -- =============================================
 PRINT 'Asignando patentes a familias...';
 
--- Familia Usuarios: todas las patentes de usuario (P = Patente)
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (1, 1, 'P'), (1, 2, 'P'), (1, 3, 'P'), (1, 4, 'P');
+-- Familia Usuarios: todas las patentes de usuario
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) 
+VALUES (1, 1), (1, 2), (1, 3), (1, 4);
 
 -- Familia Clientes: todas las patentes de cliente
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (2, 5, 'P'), (2, 6, 'P'), (2, 7, 'P'), (2, 8, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) 
+VALUES (2, 5), (2, 6), (2, 7), (2, 8);
 
 -- Familia Turnos: todas las patentes de turno
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (3, 9, 'P'), (3, 10, 'P'), (3, 11, 'P'), (3, 12, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) 
+VALUES (3, 9), (3, 10), (3, 11), (3, 12);
 
 -- Familia Reportes: todas las patentes de reporte
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (4, 13, 'P'), (4, 14, 'P'), (4, 15, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) 
+VALUES (4, 13), (4, 14), (4, 15);
 
 -- Familia Sistema: patentes administrativas
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (5, 16, 'P'), (5, 17, 'P'), (5, 18, 'P');
+INSERT INTO [dbo].[FamiliaPatente] ([IDFamilia], [IDPatente]) 
+VALUES (5, 16), (5, 17), (5, 18);
 
 PRINT '✓ Patentes asignadas a familias correctamente';
 GO
@@ -96,17 +96,17 @@ GO
 -- =============================================
 PRINT 'Asignando familias a roles...';
 
--- Rol Empleado: Clientes y Turnos (F = Familia)
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (6, 2, 'F'), (6, 3, 'F');
+-- Rol Empleado: Clientes y Turnos
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) 
+VALUES (6, 2), (6, 3);
 
 -- Rol Supervisor: Empleado + Reportes
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (7, 6, 'F'), (7, 4, 'F');
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) 
+VALUES (7, 6), (7, 4);
 
 -- Rol Administrador: Supervisor + Usuarios + Sistema
-INSERT INTO [dbo].[FamiliaElemento] ([IDFamilia], [IDElemento], [TipoElemento]) 
-VALUES (8, 7, 'F'), (8, 1, 'F'), (8, 5, 'F');
+INSERT INTO [dbo].[FamiliaFamilia] ([IDFamiliaPadre], [IDFamiliaHija]) 
+VALUES (8, 7), (8, 1), (8, 5);
 
 PRINT '✓ Familias asignadas a roles correctamente';
 GO
@@ -125,7 +125,9 @@ SELECT 'Opciones (Patentes)' AS Tabla, COUNT(*) AS Total FROM [dbo].[Opciones]
 UNION ALL
 SELECT 'Familia' AS Tabla, COUNT(*) AS Total FROM [dbo].[Familia]
 UNION ALL
-SELECT 'FamiliaElemento' AS Tabla, COUNT(*) AS Total FROM [dbo].[FamiliaElemento];
+SELECT 'FamiliaPatente' AS Tabla, COUNT(*) AS Total FROM [dbo].[FamiliaPatente]
+UNION ALL
+SELECT 'FamiliaFamilia' AS Tabla, COUNT(*) AS Total FROM [dbo].[FamiliaFamilia];
 
 PRINT '';
 PRINT '========================================';
