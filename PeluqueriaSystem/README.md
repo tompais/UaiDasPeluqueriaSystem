@@ -150,7 +150,7 @@ PeluqueriaSystem.sln
 | 📊 **DataGridView** | Listado profesional con columnas configurables |
 | ✏️ **Modo Alta/Modificación** | Un solo formulario para ambas operaciones |
 | ✅ **Validaciones robustas** | En UI y en lógica de negocio |
-| 🔐 **Encriptación SHA256** | Claves hasheadas (44 caracteres Base64) |
+| 🔐 **Encriptación MD5** | Claves hasheadas (32 caracteres hexadecimales) |
 | 📧 **Email único** | Validación con exclusión de ID en modificación |
 | 🔢 **IDs autogenerados** | Gestionados por SQL Server (IDENTITY) |
 | 📅 **Auditoría** | FechaAgregar y FechaModificacion automáticas |
@@ -165,7 +165,7 @@ PeluqueriaSystem.sln
 | **Nombre** | varchar | 50 | Obligatorio |
 | **Apellido** | varchar | 80 | Obligatorio |
 | **Email** | varchar | 180 | Formato válido, único |
-| **Clave** | varchar | 64 | **11 caracteres** (hasheada a 44) |
+| **Clave** | varchar | 64 | **11 caracteres** (hasheada a 32) |
 | **Rol** | int | - | 0-3 (Cliente/Empleado/Supervisor/Admin) |
 | **Estado** | int | - | 0-1 (Activo/Baja) |
 | **DV** | varchar | 50 | Dígito verificador |
@@ -291,31 +291,31 @@ Ver más casos en [`DEVELOPMENT.md`](PeluqueriaSystem/DEVELOPMENT.md)
 
 ### Encriptación de Claves
 
-#### SHA256 (Principal)
-- **Algoritmo:** SHA256 (hash unidireccional de 256 bits)
-- **Output:** Base64 (44 caracteres)
+#### MD5 (Principal)
+- **Algoritmo:** MD5 (hash de 128 bits)
+- **Output:** Hexadecimal (32 caracteres)
 - **Clase:** `EncriptacionService`
 - **Características:**
   - ✅ Hash unidireccional (no reversible)
   - ✅ Determinista
-  - ✅ Resistente a colisiones
   - ⚠️ Sin salt (contexto educativo)
 
 **Ejemplo:**
 ```
-Entrada:  "MiClave1234"
-Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9="
+Entrada:  "MiClave1234" (11 caracteres)
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
 ```
 
-#### MD5 (Auxiliar)
-- **Algoritmo:** MD5 (hash de 128 bits)
-- **Output:** Hexadecimal (32 caracteres)
+**Uso:**
+```csharp
+// A través del servicio de encriptación (usado por AppUsuario)
+string hash = encriptacionService.Encriptar("MiClave1234");
+```
+
+#### Clase auxiliar Encriptar
 - **Clase:** `Encriptar`
 - **Método:** `static string CreateMD5(string input)`
-- **Características:**
-  - ✅ Hash unidireccional
-  - ✅ Determinista
-  - ⚠️ Menos seguro que SHA256 (uso educativo/legacy)
+- Proporciona acceso estático al mismo algoritmo MD5 para casos de uso auxiliares
 
 **Ejemplo:**
 ```csharp

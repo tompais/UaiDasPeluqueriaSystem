@@ -109,7 +109,7 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 |----------|------|----------------|--------------|
 | **DOM** | Class Library | Entidades del dominio (DomUsuario, enums) | Ninguna |
 | **ABS** | Class Library | Interfaces y abstracciones | DOM |
-| **SERV** | Class Library | Servicios auxiliares (encriptación SHA256, MD5) | ABS |
+| **SERV** | Class Library | Servicios auxiliares (encriptación MD5) | ABS |
 | **CONTEXT** | Class Library | Acceso a datos SQL Server (DalSQLServer) | ABS, Microsoft.Data.SqlClient |
 | **REPO** | Class Library | Repositorio CRUD (RepoUsuario) | ABS, CONTEXT, DOM, Microsoft.Data.SqlClient |
 | **APP** | Class Library | Lógica de negocio (AppUsuario) | ABS, DOM, REPO, SERV |
@@ -134,8 +134,8 @@ Esta guía contiene información técnica detallada sobre la arquitectura, imple
 - `RepoUsuario`: Solo maneja persistencia SQL
   - Cambiaría si: Las operaciones de BD cambian
   
-- `EncriptacionService`: Solo encripta datos con SHA256
-  - Cambiaría si: El algoritmo SHA256 cambia
+- `EncriptacionService`: Solo encripta datos con MD5
+  - Cambiaría si: El algoritmo MD5 cambia
   
 - `Encriptar`: Solo encripta datos con MD5
   - Cambiaría si: El algoritmo MD5 cambia
@@ -232,7 +232,7 @@ public static class DependencyInjectionContainer
 Usuario → FormAltaUsuario (ID=0) → AppUsuario.Crear()
   → Validar datos
   → ExisteEmail()
-  → Encriptar clave (SHA256)
+  → Encriptar clave (MD5)
   → RepoUsuario.Crear()
     → INSERT INTO Usuario
   → Retornar usuario con ID
@@ -331,7 +331,7 @@ public void Eliminar(int id)
 
 ### Encriptación de Claves
 
-#### SHA256 (Principal)
+#### MD5 (Principal)
 
 ```csharp
 public class EncriptacionService : IEncriptacionService
@@ -339,10 +339,16 @@ public class EncriptacionService : IEncriptacionService
     public string Encriptar(string textoPlano)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(textoPlano);
-  
-        var bytes = Encoding.UTF8.GetBytes(textoPlano);
-var hash = SHA256.HashData(bytes);
-        return Convert.ToBase64String(hash);
+        
+        using MD5 md5 = MD5.Create();
+        byte[] inputBytes = Encoding.ASCII.GetBytes(textoPlano);
+        byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+        StringBuilder sb = new();
+        foreach (byte b in hashBytes)
+            sb.Append(b.ToString("X2"));
+
+        return sb.ToString();
     }
 }
 ```
@@ -350,10 +356,18 @@ var hash = SHA256.HashData(bytes);
 **Ejemplo:**
 ```
 Entrada:  "MiClave1234" (11 caracteres)
-Salida:   "5nY8xR7vK3mP9qW2dF6hL1tG4jN8uB3xE7cA5zS2mK9=" (44 caracteres Base64)
+Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
 ```
 
-#### MD5 (Auxiliar)
+**Uso en el sistema:**
+```csharp
+// A través del servicio de encriptación (usado por AppUsuario)
+var hash = encriptacionService.Encriptar("MiClave1234");
+```
+
+#### Clase auxiliar Encriptar
+
+Proporciona acceso estático al mismo algoritmo MD5 para casos de uso auxiliares:
 
 ```csharp
 public class Encriptar()
@@ -371,12 +385,6 @@ public class Encriptar()
         return sb.ToString();
     }
 }
-```
-
-**Ejemplo:**
-```
-Entrada:  "MiClave1234"
-Salida:   "0871A29869FB7B8B58235C472213C23E" (32 caracteres hexadecimales)
 ```
 
 **Uso:**
@@ -433,7 +441,7 @@ CREATE TABLE [dbo].[Usuario] (
   [Email] VARCHAR(180) NULL,
     [Rol] INT NOT NULL,
     [Estado] INT NOT NULL,
-    [Clave] VARCHAR(64) NULL,  -- SHA256 Base64 = 44 caracteres
+    [Clave] VARCHAR(64) NULL,  -- MD5 hexadecimal = 32 caracteres
  [DV] VARCHAR(50) NULL,
     [Fecha_Agregar] DATETIME NOT NULL DEFAULT GETDATE(),
     [FechaModificacion] DATETIME NULL,

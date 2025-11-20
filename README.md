@@ -1,30 +1,30 @@
 ### Campos del Usuario
 
-| Campo | Tipo | Validación |
+| Campo | Tipo | Validaciï¿½n |
 |-------|------|------------|
-| **ID** | int | Autogenerado, único, no nulo |
-| **Nombre** | string | Obligatorio, máx. 50 caracteres |
-| **Apellido** | string | Obligatorio, máx. 80 caracteres |
-| **Email** | string | Formato válido, único, máx. 180 caracteres |
-| **Clave** | string | **Exactamente 11 caracteres**, hash SHA256 |
+| **ID** | int | Autogenerado, ï¿½nico, no nulo |
+| **Nombre** | string | Obligatorio, mï¿½x. 50 caracteres |
+| **Apellido** | string | Obligatorio, mï¿½x. 80 caracteres |
+| **Email** | string | Formato vï¿½lido, ï¿½nico, mï¿½x. 180 caracteres |
+| **Clave** | string | **Exactamente 11 caracteres**, hash MD5 |
 | **Estado** | enum | Activo (0) o Baja (1) - **Valor por defecto: Activo** |
 | **Rol** | enum | Cliente, Empleado, Supervisor, Administrador |
-| **FechaCreacion** | DateTime | **Automático (DateTime.Now por defecto)** |
+| **FechaCreacion** | DateTime | **Automï¿½tico (DateTime.Now por defecto)** |
 
 ---
 
 ## ?? Seguridad
 
-- **Hash de claves**: SHA256 (hash unidireccional)
+- **Hash de claves**: MD5 (hash unidireccional)
 - **Sin texto plano**: Las claves nunca se almacenan sin hashear
 - **Thread-safety**: Operaciones en memoria protegidas con locks
-- **Validación de entrada**: En UI y en lógica de negocio
+- **Validaciï¿½n de entrada**: En UI y en lï¿½gica de negocio
 
-?? **Nota de producción:** Para sistemas reales, se recomienda usar `BCrypt` o `Argon2` con salt automático en lugar de SHA256.
+?? **Nota de producciï¿½n:** Para sistemas reales, se recomienda usar `BCrypt` o `Argon2` con salt automï¿½tico en lugar de MD5.
 
 ---
 
-## ?? Tecnologías y Paquetes
+## ?? Tecnologï¿½as y Paquetes
 
 ### Stack Principal
 
@@ -33,7 +33,7 @@
 - **Windows Forms** - UI
 - **Microsoft.Extensions.DependencyInjection** - Contenedor DI
 
-### Características de C# Utilizadas
+### Caracterï¿½sticas de C# Utilizadas
 
 - ? Nullable Reference Types (NRT)
 - ? Primary Constructors (.NET 8)
@@ -42,8 +42,8 @@
 - ? Target-typed new expressions
 - ? Init-only properties
 
-### Decisiones de Diseño
+### Decisiones de Diseï¿½o
 
-- ? **Operaciones síncronas**: Datos en memoria, sin necesidad de async/await
-- ? **Code simplicity**: Sin overhead de Task para operaciones instantáneas
+- ? **Operaciones sï¿½ncronas**: Datos en memoria, sin necesidad de async/await
+- ? **Code simplicity**: Sin overhead de Task para operaciones instantï¿½neas
 - ? **YAGNI aplicado**: Async solo cuando hay I/O real (BD, archivos, red)

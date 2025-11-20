@@ -306,7 +306,7 @@ INSERT INTO [dbo].[Usuario] (
     'jlennon@lennon.com',
     1,
     1,
-    '1234',
+    '81DC9BDB52D04DC20036DBD8313ED055',  -- MD5 hash de '1234'
     '43534h5jk43h5'
 );
 GO

@@ -6,9 +6,9 @@ namespace ABS.Services;
 public interface IEncriptacionService
 {
     /// <summary>
-    /// Genera un hash SHA256 del texto proporcionado
+    /// Genera un hash MD5 del texto proporcionado
     /// </summary>
     /// <param name="textoPlano">Texto a hashear</param>
-    /// <returns>Hash en formato Base64</returns>
+    /// <returns>Hash en formato hexadecimal</returns>
     string Encriptar(string textoPlano);
 }
