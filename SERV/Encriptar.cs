@@ -15,13 +15,14 @@ public class Encriptar()
     /// <returns>Hash en formato hexadecimal</returns>
     public static string CreateMD5(string input)
     {
-        using MD5 md5 = MD5.Create();
-        byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-        byte[] hashBytes = md5.ComputeHash(inputBytes);
+        var inputBytes = Encoding.ASCII.GetBytes(input);
+        var hashBytes = MD5.HashData(inputBytes);
 
         StringBuilder sb = new();
-        foreach (byte b in hashBytes)
+        foreach (var b in hashBytes)
+        {
             sb.Append(b.ToString("X2"));
+        }
 
         return sb.ToString();
     }
