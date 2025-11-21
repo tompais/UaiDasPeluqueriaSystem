@@ -5,7 +5,7 @@ namespace DOM
     /// </summary>
     public class Patente
     {
-        public int ID { get; set; }
+        public int ID { get; init; }
         public required string Nombre { get; set; }
     }
 }

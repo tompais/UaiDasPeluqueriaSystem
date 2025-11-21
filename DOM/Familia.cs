@@ -6,7 +6,7 @@ namespace DOM
     /// </summary>
     public class Familia
     {
-        public int ID { get; set; }
+        public int ID { get; init; }
         public required string Nombre { get; set; }
         
         private readonly List<Patente> _patentes = [];
