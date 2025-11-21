@@ -6,9 +6,9 @@ Esta carpeta contiene todos los scripts SQL necesarios para crear y configurar l
 
 ## ?? Resumen Ejecutivo
 
-Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** del proyecto.
+Se han creado **10 archivos SQL** que cumplen con **todos los requerimientos** del proyecto.
 
-**Estado:** ? **COMPLETADO AL 100%**
+**Estado:** ? **COMPLETADO AL 100%** (Incluye soporte multi-idioma)
 
 ---
 
@@ -24,6 +24,10 @@ Se han creado **8 archivos SQL** que cumplen con **todos los requerimientos** de
 | **4** | `04_SeedData.sql` | Datos iniciales | ? S� |
 | **5** | `05_CRUDOperations.sql` | CRUD (Puntos 6,7,8) | ? S� |
 | **6** | `06_UsuarioExamples.sql` | Ejemplos Usuario | ? S� |
+| **7** | `07_CreatePatenteFamiliaTables.sql` | Patente y Familia | ? S� |
+| **8** | `08_SeedPatenteFamilia.sql` | Datos Patente/Familia | ? S� |
+| **9** | `09_CreateDiccionarioTable.sql` | Tabla Diccionario | ? S� |
+| **10** | `10_SeedDiccionario.sql` | Datos Multi-Idioma | ? S� |
 
 ---
 
@@ -100,6 +104,13 @@ Ejecutar en orden: 01 ? 02 ? 03 ? 04 ? 05 ? 06
 - Estado ? FK Estado.ID
 - Clave, DV
 - Fecha_Agregar (default GETDATE())
+
+### Diccionario (Multi-Idioma)
+
+- ID (IDENTITY)
+- IDIdioma (INT): 1=Español, 2=Inglés, 3=Portugués
+- PalabraOriginal (VARCHAR 100)
+- PalabraIdioma (VARCHAR 100)
 
 ---
 

@@ -23,9 +23,11 @@ public static class DependencyInjectionContainer
 
         // Repositorios (Base de datos)
         services.AddScoped<IUsuarioDbRepository, RepoUsuario>();
+        services.AddScoped<ITraduccionDbRepository, RepoTraduccion>();
 
         // Servicios de aplicación
         services.AddScoped<AppUsuario>();
+        services.AddScoped<AppTraduccion>();
 
         // Formularios
         services.AddTransient<FormPrincipal>();

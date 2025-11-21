@@ -34,6 +34,41 @@ Ver `DEVELOPMENT.md` para documentación detallada del patrón.
 
 ---
 
+## 🌐 Soporte Multi-Idioma
+
+El sistema incluye infraestructura completa para traducciones en múltiples idiomas:
+
+### Componentes
+
+- **Diccionario**: Tabla en base de datos que almacena traducciones (palabra original → palabra traducida)
+- **Traduccion**: Entidad del dominio que representa una palabra traducida
+- **RepoTraduccion**: Repositorio para acceso a traducciones en BD
+- **AppTraduccion**: Capa de aplicación para gestión de traducciones
+- **Traductor**: Servicio utilitario para traducir palabras usando LINQ
+
+### Características
+
+- Traducciones almacenadas en SQL Server
+- Búsqueda case-insensitive de palabras
+- Fallback a palabra original si no existe traducción
+- Soporte para múltiples idiomas (Español, Inglés, Portugués incluidos)
+- Arquitectura extensible para agregar más idiomas
+
+### Uso
+
+```csharp
+// Traducir una palabra al inglés (IDIdioma = 2)
+string traduccion = AppTraduccion.Traducir("Usuario", 2);
+// Resultado: "User"
+
+// Usar el servicio Traductor directamente
+var traducciones = AppTraduccion.TraerPorIdioma(2);
+string traduccion = Traductor.Traducir("Guardar", traducciones);
+// Resultado: "Save"
+```
+
+---
+
 ## ?? Seguridad
 
 - **Hash de claves**: MD5 (hash unidireccional)
