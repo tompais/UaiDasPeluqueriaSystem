@@ -6,18 +6,25 @@ namespace APP
     public class AppTraduccion
     {
         private static ITraduccionDbRepository? _repository;
+        private static readonly object _lock = new();
 
         public AppTraduccion(ITraduccionDbRepository repository)
         {
-            _repository = repository;
+            lock (_lock)
+            {
+                _repository = repository;
+            }
         }
 
         public static List<DOM.Traduccion> TraerPorIdioma(int idIdioma)
         {
-            if (_repository == null)
-                throw new InvalidOperationException("El repositorio de traducciones no ha sido inicializado");
+            lock (_lock)
+            {
+                if (_repository == null)
+                    throw new InvalidOperationException("El repositorio de traducciones no ha sido inicializado");
 
-            return _repository.TraerPorIdioma(idIdioma);
+                return _repository.TraerPorIdioma(idIdioma);
+            }
         }
 
         /// <summary>
