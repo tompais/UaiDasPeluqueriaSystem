@@ -3,7 +3,7 @@ namespace SERV
     /// <summary>
     /// Clase que proporciona servicios de traducción de palabras
     /// </summary>
-    public class Traductor
+    public static class Traductor
     {
         /// <summary>
         /// Traduce una palabra usando la colección de traducciones proporcionada

@@ -570,6 +570,121 @@ PRINT '========================================';
 GO
 
 -- =============================================
+-- PASO 9: CREAR TABLA DICCIONARIO (MULTI-IDIOMA)
+-- =============================================
+PRINT '';
+PRINT '>>> PASO 9: CREANDO TABLA DICCIONARIO...';
+PRINT '';
+
+-- Eliminar tabla si existe
+IF OBJECT_ID('[dbo].[Diccionario]', 'U') IS NOT NULL
+BEGIN
+    DROP TABLE [dbo].[Diccionario];
+    PRINT '  ? Tabla Diccionario eliminada (ya exist�a)';
+END
+GO
+
+-- Crear tabla Diccionario
+CREATE TABLE [dbo].[Diccionario] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [IDIdioma] INT NOT NULL,
+    [PalabraOriginal] VARCHAR(100) NOT NULL,
+    [PalabraIdioma] VARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Diccionario] PRIMARY KEY CLUSTERED ([ID] ASC)
+    WITH (
+        PAD_INDEX = OFF,
+        STATISTICS_NORECOMPUTE = OFF,
+        IGNORE_DUP_KEY = OFF,
+        ALLOW_ROW_LOCKS = ON,
+        ALLOW_PAGE_LOCKS = ON,
+        OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF
+    ) ON [PRIMARY]
+) ON [PRIMARY];
+GO
+
+PRINT '? Tabla Diccionario creada correctamente';
+GO
+
+-- =============================================
+-- PASO 10: INSERTAR DATOS EN DICCIONARIO
+-- =============================================
+PRINT '';
+PRINT '>>> PASO 10: INSERTANDO DATOS EN DICCIONARIO...';
+PRINT '';
+
+-- IDIdioma = 1: Espa�ol
+-- IDIdioma = 2: Ingl�s
+-- IDIdioma = 3: Portugu�s
+
+-- Palabras comunes en Espa�ol
+INSERT INTO [dbo].[Diccionario] ([IDIdioma], [PalabraOriginal], [PalabraIdioma]) VALUES
+    (1, 'Usuario', 'Usuario'),
+    (1, 'Nombre', 'Nombre'),
+    (1, 'Apellido', 'Apellido'),
+    (1, 'Email', 'Email'),
+    (1, 'Clave', 'Clave'),
+    (1, 'Estado', 'Estado'),
+    (1, 'Rol', 'Rol'),
+    (1, 'Activo', 'Activo'),
+    (1, 'Inactivo', 'Inactivo'),
+    (1, 'Guardar', 'Guardar'),
+    (1, 'Cancelar', 'Cancelar'),
+    (1, 'Aceptar', 'Aceptar'),
+    (1, 'Eliminar', 'Eliminar'),
+    (1, 'Modificar', 'Modificar'),
+    (1, 'Nuevo', 'Nuevo'),
+    (1, 'Buscar', 'Buscar'),
+    (1, 'Administraci�n', 'Administraci�n'),
+    (1, 'Usuarios', 'Usuarios');
+
+-- Palabras comunes en Ingl�s
+INSERT INTO [dbo].[Diccionario] ([IDIdioma], [PalabraOriginal], [PalabraIdioma]) VALUES
+    (2, 'Usuario', 'User'),
+    (2, 'Nombre', 'Name'),
+    (2, 'Apellido', 'Last Name'),
+    (2, 'Email', 'Email'),
+    (2, 'Clave', 'Password'),
+    (2, 'Estado', 'Status'),
+    (2, 'Rol', 'Role'),
+    (2, 'Activo', 'Active'),
+    (2, 'Inactivo', 'Inactive'),
+    (2, 'Guardar', 'Save'),
+    (2, 'Cancelar', 'Cancel'),
+    (2, 'Aceptar', 'Accept'),
+    (2, 'Eliminar', 'Delete'),
+    (2, 'Modificar', 'Modify'),
+    (2, 'Nuevo', 'New'),
+    (2, 'Buscar', 'Search'),
+    (2, 'Administraci�n', 'Administration'),
+    (2, 'Usuarios', 'Users');
+
+-- Palabras comunes en Portugu�s
+INSERT INTO [dbo].[Diccionario] ([IDIdioma], [PalabraOriginal], [PalabraIdioma]) VALUES
+    (3, 'Usuario', 'Usu�rio'),
+    (3, 'Nombre', 'Nome'),
+    (3, 'Apellido', 'Sobrenome'),
+    (3, 'Email', 'Email'),
+    (3, 'Clave', 'Senha'),
+    (3, 'Estado', 'Estado'),
+    (3, 'Rol', 'Fun��o'),
+    (3, 'Activo', 'Ativo'),
+    (3, 'Inactivo', 'Inativo'),
+    (3, 'Guardar', 'Salvar'),
+    (3, 'Cancelar', 'Cancelar'),
+    (3, 'Aceptar', 'Aceitar'),
+    (3, 'Eliminar', 'Excluir'),
+    (3, 'Modificar', 'Modificar'),
+    (3, 'Nuevo', 'Novo'),
+    (3, 'Buscar', 'Pesquisar'),
+    (3, 'Administraci�n', 'Administra��o'),
+    (3, 'Usuarios', 'Usu�rios');
+
+PRINT '? Datos de ejemplo insertados correctamente (54 traducciones)';
+PRINT '';
+PRINT '========================================';
+GO
+
+-- =============================================
 -- RESUMEN FINAL
 -- =============================================
 PRINT '';
@@ -578,7 +693,7 @@ PRINT '??? SCRIPT COMPLETADO EXITOSAMENTE ???';
 PRINT '========================================';
 PRINT '';
 PRINT 'Base de datos: PeluSystem';
-PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaPatente, FamiliaFamilia';
+PRINT 'Tablas creadas: Rol, Estado, Usuario, Opciones, Familia, FamiliaPatente, FamiliaFamilia, Diccionario';
 PRINT 'Relaciones: FK_Usuario_Rol, FK_Usuario_Estado, FK_FamiliaPatente_Familia, FK_FamiliaPatente_Opciones, FK_FamiliaFamilia_Padre, FK_FamiliaFamilia_Hija';
 PRINT '';
 PRINT 'Estado de las tablas:';
@@ -589,9 +704,10 @@ PRINT '  - Opciones: 18 registros (patentes del sistema)';
 PRINT '  - Familia: 8 registros (familias de permisos y roles)';
 PRINT '  - FamiliaPatente: 18 registros (patentes asignadas a familias)';
 PRINT '  - FamiliaFamilia: 6 registros (familias anidadas)';
+PRINT '  - Diccionario: 54 registros (18 palabras x 3 idiomas: ES, EN, PT)';
 PRINT '';
 PRINT '========================================';
 PRINT '';
-PRINT '�Base de datos lista para usar!';
+PRINT '�Base de datos lista para usar con soporte multi-idioma!';
 PRINT '';
 GO
