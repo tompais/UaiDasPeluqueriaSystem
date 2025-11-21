@@ -714,6 +714,178 @@ public void Crear_ConEmailDuplicado_DebeRetornarError()
 
 ---
 
+## 🧩 Patrón Composite - Sistema de Permisos
+
+### Implementación del Patrón Composite
+
+El sistema implementa el **patrón Composite** para gestionar permisos de usuarios mediante una jerarquía de patentes y familias, sin utilizar una clase abstracta intermedia.
+
+#### Componentes del Patrón
+
+```
+┌───────────┐       ┌──────────────────────┐
+│  Patente  │       │      Familia         │
+│  (Leaf)   │       │    (Composite)       │
+├───────────┤       ├──────────────────────┤
+│+ ID       │       │+ ID                  │
+│+ Nombre   │       │+ Nombre              │
+└───────────┘       │+ Patentes: List      │
+                    │+ Familias: List      │
+                    ├──────────────────────┤
+                    │+ AgregarPatente()    │
+                    │+ AgregarFamilia()    │
+                    │+ RemoverPatente()    │
+                    │+ RemoverFamilia()    │
+                    │+ Limpiar()           │
+                    │+ ObtenerTodasLasPatentes()│
+                    └──────────────────────┘
+```
+
+#### Clases Implementadas
+
+**1. Patente (Leaf)**
+```csharp
+public class Patente
+{
+    public int ID { get; set; }
+    public required string Nombre { get; set; }
+}
+```
+
+**2. Familia (Composite)**
+```csharp
+public class Familia
+{
+    public int ID { get; set; }
+    public required string Nombre { get; set; }
+    
+    private readonly List<Patente> _patentes = [];
+    private readonly List<Familia> _familias = [];
+
+    public IReadOnlyList<Patente> Patentes => _patentes.AsReadOnly();
+    public IReadOnlyList<Familia> Familias => _familias.AsReadOnly();
+    
+    public void AgregarPatente(Patente patente) => _patentes.Add(patente);
+    public void AgregarFamilia(Familia familia) => _familias.Add(familia);
+    public void RemoverPatente(Patente patente) => _patentes.Remove(patente);
+    public void RemoverFamilia(Familia familia) => _familias.Remove(familia);
+    
+    public void Limpiar()
+    {
+        _patentes.Clear();
+        _familias.Clear();
+    }
+    
+    // Usa LINQ para obtener todos los permisos recursivamente
+    public List<Patente> ObtenerTodasLasPatentes() =>
+        _patentes
+            .Concat(_familias.SelectMany(f => f.ObtenerTodasLasPatentes()))
+            .ToList();
+}
+```
+
+### Base de Datos
+
+#### Tablas
+
+**Opciones (Patentes)**
+```sql
+CREATE TABLE [dbo].[Opciones] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [Nombre] VARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Opciones] PRIMARY KEY ([ID])
+);
+```
+
+**Familia**
+```sql
+CREATE TABLE [dbo].[Familia] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [Nombre] VARCHAR(100) NOT NULL,
+    CONSTRAINT [PK_Familia] PRIMARY KEY ([ID])
+);
+```
+
+**FamiliaPatente (Relación Familia-Patente)**
+```sql
+CREATE TABLE [dbo].[FamiliaPatente] (
+    [IDFamilia] INT NOT NULL,
+    [IDPatente] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaPatente] PRIMARY KEY ([IDFamilia], [IDPatente]),
+    CONSTRAINT [FK_FamiliaPatente_Familia] FOREIGN KEY ([IDFamilia]) 
+        REFERENCES [dbo].[Familia]([ID])
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT [FK_FamiliaPatente_Opciones] FOREIGN KEY ([IDPatente]) 
+        REFERENCES [dbo].[Opciones]([ID])
+        ON DELETE CASCADE ON UPDATE CASCADE
+);
+```
+
+**FamiliaFamilia (Relación Auto-Referencial)**
+```sql
+CREATE TABLE [dbo].[FamiliaFamilia] (
+    [IDFamiliaPadre] INT NOT NULL,
+    [IDFamiliaHija] INT NOT NULL,
+    CONSTRAINT [PK_FamiliaFamilia] PRIMARY KEY ([IDFamiliaPadre], [IDFamiliaHija]),
+    CONSTRAINT [FK_FamiliaFamilia_Padre] FOREIGN KEY ([IDFamiliaPadre]) 
+        REFERENCES [dbo].[Familia]([ID]),
+    CONSTRAINT [FK_FamiliaFamilia_Hija] FOREIGN KEY ([IDFamiliaHija]) 
+        REFERENCES [dbo].[Familia]([ID])
+);
+```
+
+> **Nota:** Se utilizan dos tablas separadas para evitar ambigüedad: `FamiliaPatente` relaciona familias con patentes, y `FamiliaFamilia` permite la estructura recursiva de familias conteniendo otras familias.
+
+### Capas de Implementación
+
+#### 1. Dominio (DOM)
+- `Patente.cs` - Permisos individuales
+- `Familia.cs` - Agrupación de permisos (puede contener patentes y otras familias)
+
+#### 2. Abstracción (ABS)
+- `IPatenteDbRepository` - Interfaz para operaciones de patentes
+- `IFamiliaDbRepository` - Interfaz para operaciones de familias
+
+#### 3. Repositorio (REPO)
+- `RepoPatente` - CRUD para patentes
+- `RepoFamilia` - CRUD para familias con soporte composite
+
+#### 4. Aplicación (APP)
+- `AppPatente` - Lógica de negocio para patentes
+- `AppFamilia` - Lógica de negocio para familias
+
+### Ejemplo de Uso
+
+```csharp
+// Crear patentes
+var patenteAlta = new Patente { ID = 1, Nombre = "Usuario_Alta" };
+var patenteBaja = new Patente { ID = 2, Nombre = "Usuario_Baja" };
+
+// Crear familia y agregar patentes
+var familiaUsuarios = new Familia { ID = 1, Nombre = "Familia_Usuarios" };
+familiaUsuarios.AgregarPatente(patenteAlta);
+familiaUsuarios.AgregarPatente(patenteBaja);
+
+// Crear rol con familias (composite de composite)
+var rolAdmin = new Familia { ID = 8, Nombre = "Rol_Administrador" };
+rolAdmin.AgregarFamilia(familiaUsuarios);
+
+// Obtener todas las patentes recursivamente usando LINQ
+var todasLasPatentes = rolAdmin.ObtenerTodasLasPatentes();
+```
+
+### Principios Aplicados
+
+- **Clean Code**: Código legible y autoexplicativo
+- **SOLID**: Single Responsibility, Open/Closed Principle
+- **DRY**: Reutilización mediante jerarquía de clases
+- **LINQ**: Para consultas y transformaciones de colecciones
+- **Expression Body**: Cuando es apropiado
+- **Constructor Primario**: Sin campos explícitos
+- **Tipos Implícitos**: Uso de `var` cuando mejora legibilidad
+
+---
+
 **Última actualización:** 2025
-**Versión:** 2.0 - CRUD Completo
+**Versión:** 3.0 - Patrón Composite Implementado
 **Mantenedor:** Sistema de Gestión Peluquería
