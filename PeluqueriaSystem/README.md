@@ -97,12 +97,12 @@ Este proyecto implementa la funcionalidad de **gestión completa de usuarios (CR
 ```
 PeluqueriaSystem.sln
 │
-├── DOM/ # 📦 Entidades del dominio (DomUsuario, enums)
-├── ABS/        # 🔌 Interfaces y abstracciones
-├── SERV/    # ⚙️ Servicios auxiliares (Encriptar)
-├── CONTEXT/       # 🗄️ Acceso a datos SQL Server (DalSQLServer)
-├── REPO/       # 💾 Repositorio CRUD (RepoUsuario)
-├── APP/           # 🧠 Lógica de negocio (AppUsuario)
+├── DOM/             # 📦 Entidades del dominio (DomUsuario, Traduccion, Familia, Patente)
+├── ABS/             # 🔌 Interfaces y abstracciones
+├── SERV/            # ⚙️ Servicios auxiliares (Encriptar, Traductor)
+├── CONTEXT/         # 🗄️ Acceso a datos SQL Server (DalSQLServer)
+├── REPO/            # 💾 Repositorios CRUD (RepoUsuario, RepoTraduccion, RepoFamilia)
+├── APP/             # 🧠 Lógica de negocio (AppUsuario, AppTraduccion, AppFamilia)
 └── PeluqueriaSystem/  # 🖥️ Interfaz de usuario (Windows Forms)
     ├── FormPrincipal.cs
     ├── FormUsuarios.cs    # Listado con CRUD
@@ -114,15 +114,15 @@ PeluqueriaSystem.sln
 ```
   UI (PeluqueriaSystem)
      ↓
-    APP (AppUsuario)
+    APP (AppUsuario, AppTraduccion, AppFamilia, AppPatente)
       ↓
-    REPO (RepoUsuario) + SERV (Encriptar)
+    REPO (RepoUsuario, RepoTraduccion, etc.) + SERV (Encriptar, Traductor)
      ↓
     CONTEXT (DalSQLServer)
        ↓
-    SQL Server (PeluSystem)
+    SQL Server (PeluSystem) - Tablas: Usuario, Diccionario, Familia, Patente
          ↓
-    DOM (DomUsuario)
+    DOM (DomUsuario, Traduccion, Familia, Patente)
       ↑
     ABS (Interfaces) ← Todas las capas dependen de abstracciones
 ```
@@ -171,6 +171,62 @@ PeluqueriaSystem.sln
 | **DV** | varchar | 50 | Dígito verificador |
 | **Fecha_Agregar** | datetime | - | Automático (GETDATE()) |
 | **FechaModificacion** | datetime | - | Automático en UPDATE |
+
+---
+
+## 🌐 Soporte Multi-Idioma
+
+El sistema incluye infraestructura completa para traducciones en múltiples idiomas, permitiendo internacionalización de la interfaz.
+
+### Componentes Implementados
+
+| Capa | Componente | Descripción |
+|------|------------|-------------|
+| **DOM** | `Traduccion` | Entidad que representa una palabra traducida |
+| **REPO** | `RepoTraduccion` | Acceso a traducciones en base de datos |
+| **APP** | `AppTraduccion` | Lógica de negocio para traducciones |
+| **SERV** | `Traductor` | Servicio utilitario con LINQ para traducir palabras |
+| **BD** | `Diccionario` | Tabla que almacena el diccionario de traducciones |
+
+### Características de Traducción
+
+- ✅ **Base de datos**: Traducciones persistentes en SQL Server
+- ✅ **Múltiples idiomas**: Soporte para Español (1), Inglés (2), Portugués (3)
+- ✅ **Búsqueda flexible**: Case-insensitive usando LINQ
+- ✅ **Fallback inteligente**: Devuelve palabra original si no existe traducción
+- ✅ **Extensible**: Fácil agregar nuevos idiomas y palabras
+- ✅ **Clean Code**: Uso de LINQ, expression body, y tipos implícitos
+
+### Tabla Diccionario
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| **ID** | int | Identificador único (PK) |
+| **IDIdioma** | int | Identificador del idioma (1=ES, 2=EN, 3=PT) |
+| **PalabraOriginal** | varchar(100) | Palabra en idioma base (español) |
+| **PalabraIdioma** | varchar(100) | Traducción al idioma especificado |
+
+### Ejemplo de Uso
+
+```csharp
+// Traducir una palabra al inglés
+string traduccion = AppTraduccion.Traducir("Usuario", 2);
+// Resultado: "User"
+
+// Traducir al portugués
+string traduccionPT = AppTraduccion.Traducir("Guardar", 3);
+// Resultado: "Salvar"
+
+// Usando el servicio Traductor directamente
+var traducciones = AppTraduccion.TraerPorIdioma(2);
+string traduccion = Traductor.Traducir("Email", traducciones);
+// Resultado: "Email" (sin cambio)
+```
+
+### Scripts de Base de Datos
+
+- `09_CreateDiccionarioTable.sql`: Crea la tabla Diccionario
+- `10_SeedDiccionario.sql`: Inserta traducciones de ejemplo (ES, EN, PT)
 
 ---
 
